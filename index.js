@@ -56,7 +56,7 @@ app.use(cors({
   origin: [
     'https://panel-nishinashop.onrender.com',
     'http://localhost:8080',
-    'https://nishinashop.onrender.com,',
+    'https://nishinashop.onrender.com',
     'http://localhost:8081/' 
    ], // o '*' para permitir todo en desarrollo
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
