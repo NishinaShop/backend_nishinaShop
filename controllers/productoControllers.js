@@ -252,9 +252,6 @@ const actualizar_producto_admin = async function(req, res) {
         res.status(500).send({data: undefined, message:"ErroToken"});
     }
   }
-  const cloudinary = require('../config/cloudinary');
-const fs = require('fs');
-
 const subir_imagen_producto_admin = async function(req, res) {
   if (!req.user) return res.status(401).send({ message: 'ErrorToken' });
 
