@@ -52,24 +52,17 @@ async function connectDB() {
     process.exit(1);
   }
 }
-const corsOptions = {
+app.use(cors({
   origin: [
-    'https://api-nishinashop.onrender.com', // URL de tu panel en producción
-    'http://localhost:8080' // Opcional: para desarrollo local
-  ],
+    'https://panel-nishinashop.onrender.com',
+    'http://localhost:8080' 
+   ], // o '*' para permitir todo en desarrollo
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Authorization', 'X-API-KEY', 'Content-Type'],
-  credentials: true // Si usas cookies o autenticación
-};
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
-// Configuración CORS
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); 
-  res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Access-Control-Allow-Request-Method');
-  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-  res.header('Allow', 'GET, PUT, POST, DELETE, OPTIONS');
-  next();
-});
+
 
 // Inicialización
 connectDB();
@@ -78,6 +71,7 @@ app.use('/api', usuario_router);
 app.use('/api', producto_router);
 app.use('/api', public_router);
 app.use('/api', customers_router);
+app.options('*', cors());
 
 
 module.exports = app;
