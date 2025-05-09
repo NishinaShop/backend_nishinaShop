@@ -71,7 +71,6 @@ app.use('/api', usuario_router);
 app.use('/api', producto_router);
 app.use('/api', public_router);
 app.use('/api', customers_router);
-app.options('*', cors());
 
 
 module.exports = app;
