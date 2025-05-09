@@ -4,7 +4,7 @@
   "description": "backend tienda nishina",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon BackEnd/index.js"
+    "start": "node index.js"
   },
   "author": "Emanuel Morales",
   "license": "ISC",
@@ -26,3 +26,4 @@
     "nodemon": "^3.1.9"
   }
 }
+
