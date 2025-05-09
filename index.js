@@ -2,7 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { createServer } = require("http");
 const { Server } = require("socket.io");
-require('dotenv').config(); // Necesario para variables de entorno
+require('dotenv').config()
+const cors = require('cors');
 
 const app = express();
 const httpServer = createServer(app);
@@ -51,6 +52,15 @@ async function connectDB() {
     process.exit(1);
   }
 }
+const corsOptions = {
+  origin: [
+    'https://api-nishinashop.onrender.com', // URL de tu panel en producción
+    'http://localhost:8080' // Opcional: para desarrollo local
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'X-API-KEY', 'Content-Type'],
+  credentials: true // Si usas cookies o autenticación
+};
 
 // Configuración CORS
 app.use((req, res, next) => {
@@ -68,5 +78,6 @@ app.use('/api', usuario_router);
 app.use('/api', producto_router);
 app.use('/api', public_router);
 app.use('/api', customers_router);
+
 
 module.exports = app;
