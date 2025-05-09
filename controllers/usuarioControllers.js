@@ -2,22 +2,26 @@ const usuario = require('../models/usuario');
 var bcryptjs = require ('bcrypt-nodejs');
 var jwt = require ('../helpers/jwt')
 const registro_usuario_admin = async function (req,res) {
-   let data = req.body;
-           let usuarios = await usuario.find({email: data.email})
-           if (usuarios.length >= 1) {
-               res.status(200).send({data: undefined, message: 'El correo electonico ya existe'});
-           } else {
-               bcryptjs.hash('123456',null,null, async function(err, hash){
-                   if(err){
-                       res.status(200).send({data: undefined, message: 'No se pudo encriptar contraseña'});
-                   }else{
-                       data.password = hash;
-                       let user = await usuario.create(data);
-                       res.status(200).send({data: user})
-                   }
-               }
-           );
-           }
+     if(req.user){
+                let data = req.body;
+        let usuarios = await usuario.find({email: data.email})
+        if (usuarios.length >= 1) {
+            res.status(200).send({data: undefined, message: 'El correo electonico ya existe'});
+        } else {
+            bcryptjs.hash('123456',null,null, async function(err, hash){
+                if(err){
+                    res.status(200).send({data: undefined, message: 'No se pudo encriptar contraseña'});
+                }else{
+                    data.password = hash;
+                    let user = await usuario.create(data);
+                    res.status(200).send({data: user})
+                }
+            }
+        );
+        }
+            } else {
+                res.status(500).send({data: undefined, message: 'ErrorToken'});
+            }
 }
 const login_usuario = async function (req,res){
     var data = req.body;

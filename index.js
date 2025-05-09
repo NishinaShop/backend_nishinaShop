@@ -55,7 +55,8 @@ async function connectDB() {
 app.use(cors({
   origin: [
     'https://panel-nishinashop.onrender.com',
-    'http://localhost:8080' 
+    'http://localhost:8080',
+    'http://localhost:8081/' 
    ], // o '*' para permitir todo en desarrollo
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
