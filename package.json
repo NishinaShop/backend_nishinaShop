@@ -12,6 +12,7 @@
     "bcrypt-nodejs": "^0.0.3",
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
+    "cloudinary": "^2.6.1",
     "connect-multiparty": "^2.2.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
@@ -26,4 +27,3 @@
     "nodemon": "^3.1.9"
   }
 }
-

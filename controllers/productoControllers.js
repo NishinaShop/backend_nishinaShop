@@ -4,35 +4,44 @@ var ingreso = require('../models/ingreso');
 var ingreso_detalles = require('../models/ingreso_detalles')
 var galeria = require ('../models/galeria')
 var slugify = require ('slugify')
+const cloudinary = require('../config/cloudinary');
 var fs = require ('fs');
 var path = require('path');
 
-const registro_producto_admin = async function(req, res){
-    if(req.user){
-        let data = req.body;
-        let products = await producto.find({nombre: data.nombre});
-        console.log(products.length);
-        if(products.length >= 1){
-            res.status(200).send({data: undefined, message: 'El nombre del producto ya existe.'})
-        }else{
-            //registro del producto
-            var img_path = req.files.portada.path;
-            var str_img = img_path.split('/');
-            var str_portada = str_img[2];
-            data.portada = str_portada;
-            data.slug = slugify(data.nombre);
-            try {
-                let products = await producto.create(data);
-                res.status(201).send({data: products})
-            } catch (error) {
-                res.status(400).send({data: undefined, message:'No se pudo crear el producto',error: error})
-            }
-            console.log(data);
-            
-        }
-    }else{
-        res.status(401).send({data: undefined, message: 'Error en el Token de autorización'});
+const registro_producto_admin = async function(req, res) {
+  if (req.user) {
+    const data = req.body;
+    const existing = await producto.find({ nombre: data.nombre });
+
+    if (existing.length >= 1) {
+      return res.status(200).send({ data: undefined, message: 'El nombre del producto ya existe.' });
     }
+
+    try {
+      // Subir portada a Cloudinary
+      const img_path = req.files.portada.path;
+
+      const result = await cloudinary.uploader.upload(img_path, {
+        folder: 'nishinashop/productos',
+        public_id: slugify(data.nombre), // opcional
+      });
+
+      data.portada = result.secure_url;
+      data.slug = slugify(data.nombre);
+
+      const newProduct = await producto.create(data);
+
+      // Elimina el archivo temporal del servidor
+      fs.unlinkSync(img_path);
+
+      res.status(201).send({ data: newProduct });
+    } catch (error) {
+      console.error(error);
+      res.status(400).send({ data: undefined, message: 'No se pudo crear el producto', error: error.message });
+    }
+  } else {
+    res.status(401).send({ data: undefined, message: 'Error en el Token de autorización' });
+  }
 };
 const listar_productos_admin = async function(req,res){
     if(req.user){
@@ -90,71 +99,50 @@ const obtener_producto_admin = async function(req,res){
     }
 }
 const actualizar_producto_admin = async function(req, res) {
-    try {
-      if (!req.user) {
-        return res.status(401).send({ message: 'Error de autenticación' });
-      }
-  
-      const id = req.params.id;
-      let data = req.body;
-  
-      // Verificar si el producto existe
-      const productoExistente = await producto.findById(id);
-      if (!productoExistente) {
-        return res.status(404).send({ message: 'Producto no encontrado' });
-      }
-  
-      // Verificar nombre duplicado
-      const productoConMismoNombre = await producto.findOne({
-        nombre: data.nombre,
-        _id: { $ne: id }
-      });
-      
-      if (productoConMismoNombre) {
-        return res.status(400).send({ message: 'Ya existe un producto con este nombre' });
-      }
-  
-      // Procesar imagen si existe
-      if (req.files?.portada) {
-        const img_path = req.files.portada.path;
-        const str_img = img_path.split('/');
-        data.portada = str_img[2]; // Nombre del archivo
-      } else {
-        // Mantener la imagen existente si no se envía nueva
-        data.portada = productoExistente.portada;
-      }
-  
-      // Actualizar slug
-      data.slug = slugify(data.nombre);
-  
-      // Actualizar el producto
-      const productoActualizado = await producto.findByIdAndUpdate(
-        id,
-        {
-          $set: {
-            nombre: data.nombre,
-            clave: data.clave,
-            genero: data.genero,
-            categoria: data.categoria,
-            descripcion: data.descripcion,
-            estado: data.estado,
-            descuento: data.descuento,
-            portada: data.portada,
-            slug: data.slug
-          }
-        },
-        { new: true }
-      );
-  
-      res.status(200).send({ data: productoActualizado });
-    } catch (error) {
-      console.error('Error en actualizar_producto_admin:', error);
-      res.status(500).send({ 
-        message: 'Error interno del servidor',
-        error: error.message 
-      });
+  try {
+    if (!req.user) return res.status(401).send({ message: 'Error de autenticación' });
+
+    const id = req.params.id;
+    let data = req.body;
+
+    const productoExistente = await producto.findById(id);
+    if (!productoExistente) return res.status(404).send({ message: 'Producto no encontrado' });
+
+    const productoConMismoNombre = await producto.findOne({
+      nombre: data.nombre,
+      _id: { $ne: id }
+    });
+    if (productoConMismoNombre) {
+      return res.status(400).send({ message: 'Ya existe un producto con este nombre' });
     }
-  };
+
+    // Procesar imagen si se proporciona una nueva
+    if (req.files?.portada) {
+      const result = await cloudinary.uploader.upload(req.files.portada.path, {
+        folder: 'productos/portadas'
+      });
+      fs.unlinkSync(req.files.portada.path);
+      data.portada = result.secure_url;
+    } else {
+      data.portada = productoExistente.portada;
+    }
+
+    data.slug = slugify(data.nombre);
+
+    const productoActualizado = await producto.findByIdAndUpdate(id, {
+      $set: {
+        ...data
+      }
+    }, { new: true });
+
+    res.status(200).send({ data: productoActualizado });
+
+  } catch (error) {
+    console.error('Error en actualizar_producto_admin:', error);
+    res.status(500).send({ message: 'Error interno del servidor', error: error.message });
+  }
+};
+
   const registro_variedad_producto = async (req,res) => {
     if(req.user){
         let data = req.body
@@ -264,37 +252,37 @@ const actualizar_producto_admin = async function(req, res) {
         res.status(500).send({data: undefined, message:"ErroToken"});
     }
   }
-  const subir_imagen_producto_admin = async function(req,res){
-    if(req.user){
-      let data = req.body;
+  const cloudinary = require('../config/cloudinary');
+const fs = require('fs');
 
-      let img_path = req.files.imagen.path;
-      let str_img = img_path.split('/')
-      let str_image = str_img[2];
+const subir_imagen_producto_admin = async function(req, res) {
+  if (!req.user) return res.status(401).send({ message: 'ErrorToken' });
 
-      data.imagen = str_image
-      try {
-        let imagen = await galeria.create(data)
-        res.status(200).send(imagen)
-      } catch (error) {
-        res.status(203).send({data: undefined, message: 'No se pudo subir la imagen',error: error.message })
-      }
-    }else{
-      res.status(500).send({data: undefined, message: 'ErrorToken'})
-    }
+  let data = req.body;
+
+  try {
+    const result = await cloudinary.uploader.upload(req.files.imagen.path, {
+      folder: 'productos/galeria'
+    });
+
+    // Elimina archivo temporal después de subirlo
+    fs.unlinkSync(req.files.imagen.path);
+
+    data.imagen = result.secure_url;
+
+    let imagen = await galeria.create(data);
+    res.status(200).send(imagen);
+  } catch (error) {
+    res.status(500).send({ message: 'Error al subir imagen', error: error.message });
   }
-  const obtener_galeria_producto = async function(req,res){
-    let img = req.params['img'] 
-    fs.stat('./uploads/galeria/'+ img,function(err){
-        if(err){
-            let path_img = './uploads/default.jpg';
-            res.status(200).sendFile(path.resolve(path_img));
-        }else{
-            let path_img = './uploads/galeria/'+ img;
-            res.status(200).sendFile(path.resolve(path_img));
-        }
-    })
-}
+};
+
+  const obtener_galeria_producto = async function(req, res) {
+  const imagen = req.params['img'];
+
+  // Si estás guardando la URL completa en la base de datos:
+  res.status(200).redirect(imagen || 'https://res.cloudinary.com/tu_cloud_name/image/upload/vxx/default.jpg');
+};
 const obtener_galeria_producto_admin = async function(req,res){
   if(req.user){
     let id = req.params['id'];
