@@ -113,7 +113,7 @@ const crear_venta_cliente = async function(req,res){
     if(req.user){
         let data = req.body
         data.year = new Date().getFullYear();
-        data.mounth = new Date().getMounth();
+        data.mounth = new Date().getMonth();
         data.day = new Date().getData();
         data.estado = 'Pagado'
         let Venta = await ventas.find().sort({createdAt:-1})
@@ -125,7 +125,7 @@ const crear_venta_cliente = async function(req,res){
         let venta = await ventas.create(venta)
         for(var item of data.detalles){
             item.year = new Date().getFullYear();
-            item.mounth = new Date().getMounth();
+            item.mounth = new Date().getMonth();
             item.day = new Date().getData();
             item.venta = Venta._id
             await detalles_ventas.create(item)
