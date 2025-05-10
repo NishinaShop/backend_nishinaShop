@@ -114,7 +114,7 @@ const crear_venta_cliente = async function(req,res){
         let data = req.body
         data.year = new Date().getFullYear();
         data.mounth = new Date().getMonth();
-        data.day = new Date().getData();
+        data.day = new Date().getDate();
         data.estado = 'Pagado'
         let Venta = await ventas.find().sort({createdAt:-1})
         if(ventas.length == 0){
