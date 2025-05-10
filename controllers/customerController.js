@@ -141,7 +141,7 @@ const crear_venta_cliente = async function(req,res){
 const obtener_venta= async function(req,res){
     if(req.user){
         let id = req.params['id']
-        let venta = await ventas.findById({_id:id}).populate('cliente').populate('direccion')
+        let venta = await ventas.findById({_id:id}).populate('cliente').populate('direcciones')
         let detalles = await detalles_ventas.find({venta:id}).populate('producto').populate('variedad')
         if(req.user.sub == venta.cliente._id){
             res.status(200).send({venta,detalles})

@@ -10,7 +10,7 @@ var venta_schema = schema({
     envio: {type: Number, required: true},
     estado: {type: String, required: true},
     cliente: {type: schema.ObjectId, ref: 'cliente', required: true}, 
-    direccion: {type: schema.ObjectId, ref: 'direccion', required: true},
+    direccion: {type: schema.ObjectId, ref: 'direcciones', required: true},
     createdAt : {type: Date, default: Date.now}
 }); 
 module.exports = mongoose.model('venta',venta_schema)
