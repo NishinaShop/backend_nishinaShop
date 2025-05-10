@@ -123,7 +123,7 @@ const crear_venta_cliente = async function(req,res){
         } else {
         data.serie = ventasPrevias[0].serie + 1;
         }
-        let venta = await ventas.create(venta)
+        let venta = await ventas.create(data)
         for(var item of data.detalles){
             item.year = new Date().getFullYear();
             item.mounth = new Date().getMonth();
