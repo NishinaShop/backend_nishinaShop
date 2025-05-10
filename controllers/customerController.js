@@ -132,7 +132,7 @@ const crear_venta_cliente = async function(req,res){
             await detalles_ventas.create(item)
         }
         await carrito.deleteMany({cliente:data.cliente})
-        res.status(200).send({reg})
+        res.status(200).send({venta})
     }else{
         res.status(500).send({data: undefined, message: 'Error al validar el token'})
     }
