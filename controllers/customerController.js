@@ -4,6 +4,7 @@ var direcciones = require ('../models/direcciones')
 var clientes = require ('../models/cliente')
 var ventas= require ('../models/venta')
 var detalles_ventas = require ('../models/detalles_venta')
+const axios = require('axios');
 
 
 const agregar_al_carrito = async function(req,res){
@@ -77,15 +78,35 @@ const eliminar_direccion_cliente = async function(req,res){
     }
 
 }
-const validar_payment_id_venta = async function(req,res){
-    if(req.user){
-        let payment_id = req.params['payment_id']
+
+const validar_payment_id_venta = async function(req, res) {
+  if (req.user) {
+    const payment_id = req.params['payment_id'];
+    try{
+        const mpRes = await axios.get(`https://api.mercadopago.com/v1/payments/${payment_id}`, {
+        headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` // usa variable de entorno
+      }
+    });
+    const pago = result.data;
+
+    if (pago.status === 'approved'){
         let venta = await ventas.find({transaccion:payment_id})
         res.status(200).send(venta)
-    }else{
-        res.status(500).send({data: undefined, message: 'Error al validar el token'})
+        }else{
+        res.status(200).send({message:'El pago no fue aprovado'})
+        }
+    }catch (error) {
+      console.error('Error al validar payment_id:', error.response?.data || error.message);
+      return res.status(500).send({
+        message: 'Error al validar el payment_id',
+        error: error.response?.data || error.message
+      });
     }
-
+}else {
+    return res.status(401).send({ data: undefined, message: 'Error al validar el token' });
+  }
 }
 const crear_venta_cliente = async function(req,res){
     if(req.user){
