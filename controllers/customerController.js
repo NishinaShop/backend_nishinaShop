@@ -118,7 +118,7 @@ const crear_venta_cliente = async function(req,res){
         data.estado = 'Pagado'
         let Venta = await ventas.find().sort({ createdAt: -1 });
 
-        if (ventasPrevias.length === 0) {
+        if (Venta.length === 0) {
             data.serie = 1;
         } else {
         data.serie = Venta[0].serie + 1;
