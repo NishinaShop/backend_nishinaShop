@@ -5,6 +5,7 @@ var clientes = require ('../models/cliente')
 var ventas= require ('../models/venta')
 var detalles_ventas = require ('../models/detalles_venta')
 const axios = require('axios');
+require('dotenv').config(); 
 
 
 const agregar_al_carrito = async function(req,res){
@@ -83,10 +84,10 @@ const validar_payment_id_venta = async function(req, res) {
   if (req.user) {
     const payment_id = req.params['payment_id'];
     try{
-        const mpRes = await axios.get(`https://api.mercadopago.com/v1/payments/${payment_id}`, {
+        const result = await axios.get(`https://api.mercadopago.com/v1/payments/${payment_id}`, {
         headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` // usa variable de entorno
+         Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` // usa variable de entorno
       }
     });
     const pago = result.data;
