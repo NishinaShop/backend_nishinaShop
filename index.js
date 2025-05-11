@@ -30,7 +30,7 @@ const usuario_router = require('./routes/usuario');
 const producto_router = require('./routes/producto');
 const public_router = require('./routes/public');
 const customers_router = require('./routes/customers');
-
+const ventas_router = require('./routes/ventas');
 // Middlewares
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.json({ limit: '50mb', extended: true }));
@@ -73,6 +73,7 @@ app.use('/api', usuario_router);
 app.use('/api', producto_router);
 app.use('/api', public_router);
 app.use('/api', customers_router);
+app.use('/api', ventas_router);
 
 
 module.exports = app;
