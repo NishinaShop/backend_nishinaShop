@@ -18,7 +18,7 @@ const listar_ventas_admin = async function(req,res){
                     }
             
                     let venta = await ventas.find(query).sort({createdAt:-1});
-                    res.status(200).send(detalles_ventas);
+                    res.status(200).send(venta);
                     
                 } catch(error) {
                     console.error(error);
