@@ -161,8 +161,38 @@ const eliminar_carrito = async function (req, res) {
         res.status(500).send({data: undefined, message: 'Error al validar el token'})
     }
 }
+const crear_venta_spei_cliente = async function(req,res){
+    if(req.user){
+        try {
+            let data = req.body
+        data.year = new Date().getFullYear();
+        data.month = new Date().getMonth();
+        data.day = new Date().getDate();
+        data.estado = 'Pendiente'
+        let Venta = await ventas.find().sort({ createdAt: -1 });
 
-
+        if (Venta.length === 0) {
+            data.serie = 1;
+        } else {
+        data.serie = Venta[0].serie + 1;
+        }
+        let venta = await ventas.create(data)
+        for(var item of data.detalles){
+            item.year = new Date().getFullYear();
+            item.month = new Date().getMonth();
+            item.day = new Date().getDate();
+            item.venta= venta._id
+            await detalles_ventas.create(item)
+        }
+        await carrito.deleteMany({cliente:data.cliente})
+        res.status(200).send({venta})
+        } catch (error) {
+            res.status(200).send({data: undefined, message: 'No se pudo generar la orden '})
+        }
+    }else{
+        res.status(500).send({data: undefined, message: 'Error al validar el token'})
+    }
+}
 module.exports ={
     agregar_al_carrito,
     obtener_carrito,
@@ -173,6 +203,7 @@ module.exports ={
     validar_payment_id_venta,
     crear_venta_cliente,
     obtener_venta,
-    eliminar_carrito
+    eliminar_carrito,
+    crear_venta_spei_cliente
 
 }
