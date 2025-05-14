@@ -153,6 +153,14 @@ const obtener_venta= async function(req,res){
     }
 
 }
+const eliminar_carrito = async function (req, res) {
+    if(req.user){
+        let cart = await ventas.deleteMany({cliente:req.user.sub})
+        res.status(200).send(cart)
+    }else{
+        res.status(500).send({data: undefined, message: 'Error al validar el token'})
+    }
+}
 
 
 module.exports ={
@@ -164,6 +172,7 @@ module.exports ={
     eliminar_direccion_cliente,
     validar_payment_id_venta,
     crear_venta_cliente,
-    obtener_venta
+    obtener_venta,
+    eliminar_carrito
 
 }
