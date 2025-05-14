@@ -2,6 +2,7 @@ const mongoose = require ('mongoose');
 var schema = mongoose.Schema;
 var venta_schema = schema({
     transaccion: {type: String, required: true},
+    estado_orden: {type: String, default: 'Generada', required: false},
     year: {type: Number, required: true},
     month: {type: Number, required: true},
     day: {type: Number, required: true},
