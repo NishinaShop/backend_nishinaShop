@@ -7,7 +7,6 @@ var slugify = require ('slugify')
 const cloudinary = require('../config/cloudinary');
 var fs = require ('fs');
 var path = require('path');
-const ingreso = require('../models/ingreso');
 
 const registro_producto_admin = async function(req, res) {
   if (req.user) {
