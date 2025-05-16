@@ -14,19 +14,7 @@ const listar_ordenes_admin = async function(req,res){
  const listar_ventas_admin = async function(req,res){
     if(req.user){
         try {
-                    let filtro = req.params['filtro'] || req.query['filtro'] || null;
-                    let query = {};
-            
-                    // Si hay filtro, agregamos las condiciones de búsqueda
-                    if(filtro) {
-                        query.$or = [
-                            {estado: new RegExp(filtro, 'i')},
-                            {serie: new RegExp(filtro, 'i')},
-                            {transaccion: new RegExp(filtro, 'i')},
-                        ];
-                    }
-            
-                    let venta = await ventas.find(query).sort({createdAt:-1});
+               var venta = await ventas.find({estado: true}).sort({createdAt:-1}).limit(19)
                     res.status(200).send(venta);
                     
                 } catch(error) {
@@ -37,7 +25,23 @@ const listar_ordenes_admin = async function(req,res){
                 res.status(500).send({data: undefined, message:"ErroToken"});
             }
 }
+const obtener_ordenes_venta_admin = async function(req,res){
+  if (req.user){
+    let desde = req.params['desde'];
+    let hasta = req.params['hasta'];
+    let ventasFiltro = await ventas.find({
+      createdAt: {
+        $gte: new Date(desde+'T00:00:00'),
+        $lt: new Date(hasta+'T00:00:00')
+      }
+    })
+    res.status(200).send(ventasFiltro)
+  }else{
+    res.status(500).send({data: undefined, message: 'Error en el token'})
+  }
+}
 module.exports = {
 listar_ordenes_admin,
-listar_ventas_admin
+listar_ventas_admin,
+obtener_ordenes_venta_admin,
 }
