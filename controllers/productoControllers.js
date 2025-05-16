@@ -375,7 +375,7 @@ const obtener_detalles_ingreso_admin = async function(req,res){
   if (req.user){
     let id = req.params['id']
     let Ingreso = await ingreso.findById({_id:id})
-    let detalles = await ingreso_detalles.find({Ingreso:id})
+    let detalles = await ingreso_detalles.find({ingreso:id}).populate('producto').populate('variedad')
     let colaborador = await usuario.findById({_id:Ingreso.usuario})
     res.status(200).send({Ingreso,detalles,colaborador})
   }else{
