@@ -206,17 +206,21 @@ const actualizar_producto_admin = async function(req, res) {
 
         // 3. Subir PDF a Cloudinary (solo si no existe duplicado)
         if (req.files && req.files.documento) {
-            const nombreArchivo = data.ncomprobante.replace(/[^a-zA-Z0-9]/g, '-');
-            const result = await cloudinary.uploader.upload(req.files.documento.path, {
-                folder: 'facturas',
-                resource_type: 'raw',
-                public_id: nombreArchivo,
-                format: 'pdf'
-            });
-            data.documento = nombreArchivo + '.pdf';
-            fs.unlinkSync(req.files.documento.path);
-        } else {
-            return res.status(400).send({ message: 'No se subió ningún documento PDF' });
+                const nombreArchivo = data.ncomprobante.replace(/[^a-zA-Z0-9]/g, '-');
+                const result = await cloudinary.uploader.upload(req.files.documento.path, {
+                    folder: 'facturas',
+                    resource_type: 'raw',
+                    public_id: nombreArchivo,
+                    format: 'pdf'
+                });
+                
+                // Guarda ambos: nombre y URL pública
+                data.documento = result.secure_url;
+                 // ¡Nuevo campo para la URL!
+                
+                fs.unlinkSync(req.files.documento.path);
+            } else {
+                return res.status(200).send({ message: 'No se subió ningún documento PDF' }); 
         }
 
         // 4. Procesar registro y detalles (lógica original)
@@ -236,7 +240,7 @@ const actualizar_producto_admin = async function(req, res) {
                 { _id: item.producto },
                 { 
                     stock: parseInt(product.stock) + parseInt(item.cantidad),
-                    precio: parseInt(item.precio_unidad) * parseInt(item.cantidad)
+                    precio: parseInt(item.precio_unidad)
                 }
             );
         }
@@ -246,7 +250,7 @@ const actualizar_producto_admin = async function(req, res) {
     } catch (error) {
         // Eliminar archivo temporal en caso de error
         if (req.files?.documento?.path) fs.unlinkSync(req.files.documento.path);
-        res.status(500).send({ message: 'No se pudo registrar el ingreso', error: error.message });
+        res.status(200).send({ message: 'No se pudo registrar el ingreso', error: error.message });
     }
 } else {
     res.status(500).send({ data: undefined, message: "ErrorToken" });
