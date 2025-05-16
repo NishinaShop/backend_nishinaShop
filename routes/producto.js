@@ -22,6 +22,7 @@ api.delete('/eliminar_variedades_producto/:id', authenticate.decodeToken, produc
 /// Detalles
 api.post('/registro_ingresos_admin', [authenticate.decodeToken,path_ingreso], productoController.registro_ingresos_admin)
 api.get('/obtener_ingresos_admin/:desde/:hasta',authenticate.decodeToken, productoController.obtener_ingresos_admin)
+api.get('/obtener_detalles_ingreso_admin/:id', authenticate.decodeToken, productoController.obtener_detalles_ingreso_admin)
 /// Galeria
 api.post('/subir_imagen_producto_admin', [authenticate.decodeToken, path_galeria], productoController.subir_imagen_producto_admin) 
 api.get('/obtener_galeria_producto/:img', productoController.obtener_galeria_producto)

@@ -7,6 +7,7 @@ var slugify = require ('slugify')
 const cloudinary = require('../config/cloudinary');
 var fs = require ('fs');
 var path = require('path');
+const ingreso = require('../models/ingreso');
 
 const registro_producto_admin = async function(req, res) {
   if (req.user) {
@@ -370,6 +371,16 @@ const obtener_ingresos_admin = async function(req,res){
     res.status(500).send({data: undefined, message: 'Error en el token'})
   }
 }
+const obtener_detalles_ingreso_admin = async function(req,res){
+  if (req.user){
+    let id = req.params['id']
+    let Ingreso = await ingreso.findById({_id:id})
+    let detalles = await ingreso_detalles.find({Ingreso:id})
+    res.status(200).send({Ingreso,detalles})
+  }else{
+    res.status(500).send({data: undefined, message: 'Error en el token'})
+  }
+}
 module.exports = {
     registro_producto_admin,
     listar_productos_admin,
@@ -387,4 +398,5 @@ module.exports = {
     eliminar_galeria_producto_admin,
     obtener_ingresos_admin,
     subir_factura_admin,
+    obtener_detalles_ingreso_admin,
 }
