@@ -3,6 +3,7 @@ var variedad = require('../models/variedades');
 var ingreso = require('../models/ingreso');
 var ingreso_detalles = require('../models/ingreso_detalles')
 var galeria = require ('../models/galeria')
+var usuario = require ('../models/usuario') 
 var slugify = require ('slugify')
 const cloudinary = require('../config/cloudinary');
 var fs = require ('fs');
@@ -375,7 +376,8 @@ const obtener_detalles_ingreso_admin = async function(req,res){
     let id = req.params['id']
     let Ingreso = await ingreso.findById({_id:id})
     let detalles = await ingreso_detalles.find({Ingreso:id})
-    res.status(200).send({Ingreso,detalles})
+    let colaborador = await usuario.findById({_id:Ingreso.usuario})
+    res.status(200).send({Ingreso,detalles,colaborador})
   }else{
     res.status(500).send({data: undefined, message: 'Error en el token'})
   }
