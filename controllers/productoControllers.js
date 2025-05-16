@@ -309,6 +309,21 @@ const eliminar_galeria_producto_admin = async function(req,res){
     res.status(500).send({data:undefined, message: 'errorToken'})
   }
 }
+const obtener_ingresos_admin = async function(req,res){
+  if (req.user){
+    let desde = req.params['desde'];
+    let hasta = req.params['hasta'];
+    let ingresos = await ingreso.find({
+      createdAt: {
+        $gte: new date(desde+'T00:00:00'),
+        $lt: new date(hasta+'T00:00:00')
+      }
+    })
+    res.status(200).send(ingresos)
+  }else{
+    res.status(500).send({data: undefined, message: 'Error en el token'})
+  }
+}
 module.exports = {
     registro_producto_admin,
     listar_productos_admin,
@@ -324,4 +339,5 @@ module.exports = {
     obtener_galeria_producto,
     obtener_galeria_producto_admin,
     eliminar_galeria_producto_admin,
+    obtener_ingresos_admin,
 }
