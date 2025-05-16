@@ -6,6 +6,7 @@ var ingreso_detalles_schema = schema({
     ingreso: {type: schema.ObjectId, ref: 'ingreso', requiered: true},
     usuario: {type: schema.ObjectId, ref: 'usuario', requiered: true},
     variedad: {type: schema.ObjectId, ref: 'variedad', requiered: true},
+    producto: {type: schema.ObjectId, ref: 'producto',requiered: true},
     createdAt : {type: Date, default: Date.now}
 }); 
 module.exports = mongoose.model('ingreso_detalles',ingreso_detalles_schema)
