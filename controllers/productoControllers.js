@@ -197,7 +197,7 @@ const actualizar_producto_admin = async function(req, res) {
         if (comprobanteExistente) {
             // Eliminar archivo temporal si se subió (pero no se usará)
             if (req.files?.documento?.path) fs.unlinkSync(req.files.documento.path);
-            return res.status(400).send({ message: 'El número de factura ya está registrado' });
+            return res.status(200).send({ message: 'El número de factura ya está registrado' });
         }
 
         // 2. Generar serie (lógica original)
