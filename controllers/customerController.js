@@ -121,22 +121,37 @@ const crear_venta_cliente = async function(req,res){
         if (Venta.length === 0) {
             data.serie = 1;
         } else {
-        data.serie = Venta[0].serie + 1;
+            data.serie = Venta[0].serie + 1;
         }
+        
         let venta = await ventas.create(data)
+        
         for(var item of data.detalles){
             item.year = new Date().getFullYear();
             item.month = new Date().getMonth();
             item.day = new Date().getDate();
-            item.venta= venta._id
+            item.venta = venta._id
+            
+            // Crear el detalle de venta
             await detalles_ventas.create(item)
+            
+            // Actualizar stock del producto principal
+            await producto.findByIdAndUpdate(item.producto, {
+                $inc: {stock: -item.cantidad},
+                updatedAt: new Date()
+            });
+            
+            // Actualizar stock de la variedad
+            await variedad.findByIdAndUpdate(item.variedad, {
+                $inc: {stock: -item.cantidad}
+            });
         }
+        
         await carrito.deleteMany({cliente:data.cliente})
         res.status(200).send({venta})
     }else{
         res.status(500).send({data: undefined, message: 'Error al validar el token'})
     }
-
 }
 const obtener_venta= async function(req,res){
     if(req.user){
