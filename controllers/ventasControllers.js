@@ -14,7 +14,7 @@ const listar_ordenes_admin = async function(req,res){
  const listar_ventas_admin = async function(req,res){
     if(req.user){
         try {
-               var venta = await ventas.find({estado: true}).sort({createdAt:-1}).limit(19)
+               var venta = await ventas.find().sort({createdAt:-1}).limit(19)
                     res.status(200).send(venta);
                     
                 } catch(error) {
