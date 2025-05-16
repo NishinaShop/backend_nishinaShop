@@ -315,8 +315,8 @@ const obtener_ingresos_admin = async function(req,res){
     let hasta = req.params['hasta'];
     let ingresos = await ingreso.find({
       createdAt: {
-        $gte: new date(desde+'T00:00:00'),
-        $lt: new date(hasta+'T00:00:00')
+        $gte: new Date(desde+'T00:00:00'),
+        $lt: new Date(hasta+'T00:00:00')
       }
     })
     res.status(200).send(ingresos)
