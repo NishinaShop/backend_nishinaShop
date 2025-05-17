@@ -11,7 +11,7 @@ const listar_ordenes_admin = async function(req,res){
      }
  
  }
- const listar_ventas_admin = async function(req,res){
+const listar_ventas_admin = async function(req,res){
     if(req.user){
         try {
                var venta = await ventas.find().sort({createdAt:-1}).limit(19)
@@ -40,8 +40,19 @@ const obtener_ordenes_venta_admin = async function(req,res){
     res.status(500).send({data: undefined, message: 'Error en el token'})
   }
 }
+const obtener_detalles_orden_venta_admin = async function(req,res){
+    if(req.user){
+        let id = req.params['id']
+        let venta = await ventas.findById({_id:id}).populate('cliente').populate('direccion')
+        let detalle =await detalles_ventas.find({venta:id}).populate('producto').populate('variedad')
+        res.status(200).send({venta,detalle})
+    }else {
+        res.status(500).send({data: undefinde, message: 'Token invalido'})
+    }
+}
 module.exports = {
 listar_ordenes_admin,
 listar_ventas_admin,
 obtener_ordenes_venta_admin,
+obtener_detalles_orden_venta_admin
 }
