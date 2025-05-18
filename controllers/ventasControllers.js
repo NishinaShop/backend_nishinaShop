@@ -54,7 +54,7 @@ const validar_pago =async function (req,res){
   if(req.user){
     let id = req.params['id']
     let cambioEstado = await ventas.findByIdAndUpdate(id,{
-        estado: 'pagado',
+        estado: 'Pagado',
         actualizadoPor: req.user.id 
       },
       { new: true }
