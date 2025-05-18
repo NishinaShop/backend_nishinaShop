@@ -7,5 +7,5 @@ api.get('/listar_ordenes_admin', authenticate.decodeToken, ventaController.lista
 api.get ('/listar_ventas_admin', authenticate.decodeToken,ventaController.listar_ventas_admin);
 api.get('/obtener_ordenes_venta_admin/:desde/:hasta', authenticate.decodeToken, ventaController.obtener_ordenes_venta_admin);
 api.get('/obtener_detalles_orden_venta_admin/:id', authenticate.decodeToken, ventaController.obtener_detalles_orden_venta_admin);
-api.put('/validar_pago/:id'. authenticate.decodeToken, ventaController.validar_pago)
+api.put('/validar_pago/:id', authenticate.decodeToken, ventaController.validar_pago)
 module.exports = api;
