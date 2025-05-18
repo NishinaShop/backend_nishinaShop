@@ -47,12 +47,27 @@ const obtener_detalles_orden_venta_admin = async function(req,res){
         let detalle =await detalles_ventas.find({venta:id}).populate('producto').populate('variedad')
         res.status(200).send({venta,detalle})
     }else {
-        res.status(500).send({data: undefinde, message: 'Token invalido'})
+        res.status(500).send({data: undefined, message: 'Token invalido'})
     }
+}
+const validar_pago =async function (req,res){
+  if(req.user){
+    let id = req.params['id']
+    let cambioEstado = await ventas.findByIdAndUpdate(id,{
+        estado: 'pagado',
+        actualizadoPor: req.user.id 
+      },
+      { new: true }
+    );
+    res.status(200).send({cambioEstado})
+  }else{
+        res.status(500).send({data: undefined, message: 'Token invalido'})
+  }
 }
 module.exports = {
 listar_ordenes_admin,
 listar_ventas_admin,
 obtener_ordenes_venta_admin,
-obtener_detalles_orden_venta_admin
+obtener_detalles_orden_venta_admin,
+validar_pago,
 }
