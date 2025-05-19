@@ -115,15 +115,17 @@ const cambiar_password_usuario_admin = async function(req,res){
                             res.status(200).send({data: undefined, message: 'No se pudo encriptar contraseña'});
                         }else{
                             data.password = hash;
-                            let user = await usuario.create(data);
-                            res.status(200).send({data: user})
+                            let newPassword = await usuario.findByIdAndUpdate({_id: id},{
+                                password: nuevaPassword,
+                                },
+                                { new: true }
+                            );
+                            res.status(200).send(newPassword)
                         }
                     }
                 );
-        let newPassword = await usuario.findByIdAndUpdate({_id: id},{
-            password: nuevaPassword,
-        });
-        res.status(200).send(newPassword)
+       
+        
     }else{
         res.status(500).send({data:undefined,message: 'ErrorToken'});
     }
