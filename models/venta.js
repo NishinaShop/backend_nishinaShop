@@ -11,6 +11,7 @@ var venta_schema = schema({
     envio: {type: Number, required: true},
     estado: {type: String, required: true},
     pago_validado: {type: schema.ObjectId, ref: 'usuario', required: false},
+    orden_actualizada: {type: schema.ObjectId, ref: 'usuario', required: false},
     cliente: {type: schema.ObjectId, ref: 'cliente', required: true}, 
     direccion: {type: schema.ObjectId, ref: 'direcciones', required: true},
     createdAt : {type: Date, default: Date.now}

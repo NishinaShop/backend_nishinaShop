@@ -66,10 +66,27 @@ const validar_pago =async function (req,res){
         res.status(500).send({data: undefined, message: 'Token invalido'})
   }
 }
+const cambio_estado_orden =async function (req,res){
+  if(req.user){
+    let id = req.params['id'];
+    const userId = req.user.sub;
+    let nuevo_estado = req.body.estado
+    let orden_actualizada = await ventas.findByIdAndUpdate(id,{
+      estado_orden : nuevo_estado,
+      orden_actualizada: userId
+    },{ new: true }
+  )
+  res.status(200).send(orden_actualizada)
+  }else{
+        res.status(500).send({data: undefined, message: 'Token invalido'})
+  }
+}
+
 module.exports = {
 listar_ordenes_admin,
 listar_ventas_admin,
 obtener_ordenes_venta_admin,
 obtener_detalles_orden_venta_admin,
 validar_pago,
+cambio_estado_orden
 }
