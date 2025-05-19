@@ -70,7 +70,7 @@ const cambio_estado_orden =async function (req,res){
   if(req.user){
     let id = req.params['id'];
     const userId = req.user.sub;
-    let {nuevo_estado} = req.body
+    let nuevo_estado = req.body
     let orden_actualizada = await ventas.findByIdAndUpdate(id,{
       estado_orden : nuevo_estado,
       orden_actualizada: userId
