@@ -53,9 +53,10 @@ const obtener_detalles_orden_venta_admin = async function(req,res){
 const validar_pago =async function (req,res){
   if(req.user){
     let id = req.params['id']
+    const userId = new mongoose.Types.ObjectId(req.user._id);
     let cambioEstado = await ventas.findByIdAndUpdate(id,{
         estado: 'Pagado',
-        pago_validado: req.user._id 
+        pago_validado: userId
       },
       { new: true }
     ).populate('pago_validado');
