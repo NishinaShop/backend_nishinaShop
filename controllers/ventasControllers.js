@@ -1,6 +1,7 @@
 
 var ventas= require ('../models/venta')
 var detalles_ventas = require ('../models/detalles_venta')
+const mongoose = require('mongoose');
 
 const listar_ordenes_admin = async function(req,res){
      if(req.user){
