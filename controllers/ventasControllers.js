@@ -44,10 +44,7 @@ const obtener_ordenes_venta_admin = async function(req,res){
 const obtener_detalles_orden_venta_admin = async function(req,res){
     if(req.user){
         let id = req.params['id']
-        let venta = await ventas.findById({_id:id}).populate('cliente').populate('direccion').populate({
-      path: 'pago_validado',
-      select: 'nombre' 
-    });
+        let venta = await ventas.findById({_id:id}).populate('cliente').populate('direccion').populate('pago_validado');
         let detalle =await detalles_ventas.find({venta:id}).populate('producto').populate('variedad')
         res.status(200).send({venta,detalle})
     }else {
