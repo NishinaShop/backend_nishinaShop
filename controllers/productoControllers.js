@@ -102,8 +102,10 @@ const obtener_producto_admin = async function(req,res){
 const actualizar_producto_admin = async function(req, res) {
   try {
     if (!req.user) return res.status(401).send({ message: 'Error de autenticación' });
-
-    const id = req.params.id;
+    if (req.user.rol != 'Administador'){
+      res.status(200).send({ message: 'No tienes permiso' })
+    }else{
+      const id = req.params.id;
     let data = req.body;
 
     const productoExistente = await producto.findById(id);
@@ -138,7 +140,9 @@ const actualizar_producto_admin = async function(req, res) {
 
     res.status(200).send({ data: productoActualizado });
 
-  } catch (error) {
+  
+    }
+    } catch (error) {
     console.error('Error en actualizar_producto_admin:', error);
     res.status(500).send({ message: 'Error interno del servidor', error: error.message });
   }
