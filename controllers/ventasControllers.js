@@ -55,10 +55,10 @@ const validar_pago =async function (req,res){
     let id = req.params['id']
     let cambioEstado = await ventas.findByIdAndUpdate(id,{
         estado: 'Pagado',
-        pago_validado: req.user.id 
+        pago_validado: req.user._id 
       },
       { new: true }
-    );
+    ).populate('pago_validado');
     res.status(200).send({cambioEstado})
   }else{
         res.status(500).send({data: undefined, message: 'Token invalido'})
