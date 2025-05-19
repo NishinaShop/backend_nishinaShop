@@ -43,7 +43,7 @@ const obtener_ordenes_venta_admin = async function(req,res){
 const obtener_detalles_orden_venta_admin = async function(req,res){
     if(req.user){
         let id = req.params['id']
-        let venta = await ventas.findById({_id:id}).populate('cliente').populate('direccion')
+        let venta = await ventas.findById({_id:id}).populate('cliente').populate('direccion').populate('pago_validado')
         let detalle =await detalles_ventas.find({venta:id}).populate('producto').populate('variedad')
         res.status(200).send({venta,detalle})
     }else {
@@ -58,7 +58,7 @@ const validar_pago =async function (req,res){
         pago_validado: req.user.id 
       },
       { new: true }
-    ).populate('pago_validado');
+    );
     res.status(200).send({cambioEstado})
   }else{
         res.status(500).send({data: undefined, message: 'Token invalido'})
