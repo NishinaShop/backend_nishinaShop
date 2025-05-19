@@ -58,7 +58,7 @@ const validar_pago =async function (req,res){
         pago_validado: req.user.id 
       },
       { new: true }
-    ).populate('usuario');
+    ).populate('pago_validado');
     res.status(200).send({cambioEstado})
   }else{
         res.status(500).send({data: undefined, message: 'Token invalido'})
