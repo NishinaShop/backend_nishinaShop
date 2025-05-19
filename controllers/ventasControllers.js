@@ -44,7 +44,10 @@ const obtener_ordenes_venta_admin = async function(req,res){
 const obtener_detalles_orden_venta_admin = async function(req,res){
     if(req.user){
         let id = req.params['id']
-        let venta = await ventas.findById({_id:id}).populate('cliente').populate('direccion').populate('pago_validado')
+        let venta = await ventas.findById({_id:id}).populate('cliente').populate('direccion').populate({
+      path: 'pago_validado',
+      select: 'nombre' 
+    });
         let detalle =await detalles_ventas.find({venta:id}).populate('producto').populate('variedad')
         res.status(200).send({venta,detalle})
     }else {
@@ -52,12 +55,7 @@ const obtener_detalles_orden_venta_admin = async function(req,res){
     }
 }
 const validar_pago =async function (req,res){
-  console.log("[DEBUG] Datos del usuario:", req.user); // ← Agrega esto
-  if(!req.user) {
-    console.log("[DEBUG] No hay usuario en la request"); // ← Y esto
-    return res.status(401).send({ message: 'Token inválido' });
-  }
-  /*if(req.user){
+  if(req.user){
     let id = req.params['id']
     const userId = new mongoose.Types.ObjectId(req.user._id);
     let cambioEstado = await ventas.findByIdAndUpdate(id,{
@@ -69,7 +67,7 @@ const validar_pago =async function (req,res){
     res.status(200).send({cambioEstado})
   }else{
         res.status(500).send({data: undefined, message: 'Token invalido'})
-  }*/
+  }
 }
 module.exports = {
 listar_ordenes_admin,
