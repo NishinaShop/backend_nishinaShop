@@ -197,8 +197,21 @@ const crear_venta_spei_cliente = async function(req,res){
             item.month = new Date().getMonth();
             item.day = new Date().getDate();
             item.venta= venta._id
+         // Crear el detalle de venta
             await detalles_ventas.create(item)
+            
+            // Actualizar stock del producto principal
+            await producto.findByIdAndUpdate(item.producto, {
+                $inc: {stock: -item.cantidad},
+                updatedAt: new Date()
+            });
+            
+            // Actualizar stock de la variedad
+            await variedad.findByIdAndUpdate(item.variedad, {
+                $inc: {stock: -item.cantidad}
+            });
         }
+        
         await carrito.deleteMany({cliente:data.cliente})
         res.status(200).send({venta})
         } catch (error) {
