@@ -104,6 +104,31 @@ const cambiar_estado_usuario_admin = async function(req,res){
     }
 }
 
+const cambiar_password_usuario_admin = async function(req,res){
+    if(req.user){
+
+        let id = req.params['id'];
+        let data = req.body;
+        let nuevaPassword = data.password;
+        bcryptjs.hash(nuevaPassword,null,null, async function(err, hash){
+                        if(err){
+                            res.status(200).send({data: undefined, message: 'No se pudo encriptar contraseña'});
+                        }else{
+                            data.password = hash;
+                            let user = await usuario.create(data);
+                            res.status(200).send({data: user})
+                        }
+                    }
+                );
+        let newPassword = await usuario.findByIdAndUpdate({_id: id},{
+            password: nuevaPassword,
+        });
+        res.status(200).send(newPassword)
+    }else{
+        res.status(500).send({data:undefined,message: 'ErrorToken'});
+    }
+}
+
 
 module.exports = {
 registro_usuario_admin,
@@ -112,4 +137,5 @@ listar_usuarios_admin,
 obtener_usuario_admin,
 actualizar_usuario_admin,
 cambiar_estado_usuario_admin,
+cambiar_password_usuario_admin
 }
