@@ -52,7 +52,12 @@ const obtener_detalles_orden_venta_admin = async function(req,res){
     }
 }
 const validar_pago =async function (req,res){
-  if(req.user){
+  console.log("[DEBUG] Datos del usuario:", req.user); // ← Agrega esto
+  if(!req.user) {
+    console.log("[DEBUG] No hay usuario en la request"); // ← Y esto
+    return res.status(401).send({ message: 'Token inválido' });
+  }
+  /*if(req.user){
     let id = req.params['id']
     const userId = new mongoose.Types.ObjectId(req.user._id);
     let cambioEstado = await ventas.findByIdAndUpdate(id,{
@@ -64,7 +69,7 @@ const validar_pago =async function (req,res){
     res.status(200).send({cambioEstado})
   }else{
         res.status(500).send({data: undefined, message: 'Token invalido'})
-  }
+  }*/
 }
 module.exports = {
 listar_ordenes_admin,
