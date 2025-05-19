@@ -116,7 +116,7 @@ const cambiar_password_usuario_admin = async function(req,res){
                         }else{
                             data.password = hash;
                             let newPassword = await usuario.findByIdAndUpdate({_id: id},{
-                                password: nuevaPassword,
+                                password: hash,
                                 },
                                 { new: true }
                             );
