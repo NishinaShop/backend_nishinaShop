@@ -177,61 +177,72 @@ const eliminar_carrito = async function (req, res) {
     }
 }
 const crear_venta_spei_cliente = async function(req, res) {
-    if (!req.user) return res.status(401).send({ message: 'Error de autenticación' });
-
-    const session = await mongoose.startSession(); // Inicia sesión
-    session.startTransaction(); // Inicia transacción
+    if (!req.user) {
+        return res.status(401).send({ message: 'Error al validar el token' });
+    }
 
     try {
-        // 1. Prepara datos
         let data = req.body;
         data.estado = 'Pendiente';
-        data.date = new Date();
+        data.createdAt = new Date();
 
-        // 2. Genera número de serie (dentro de la transacción)
-        const lastVenta = await ventas.findOne().sort({ createdAt: -1 }).session(session);
-        data.serie = lastVenta ? lastVenta.serie + 1 : 1;
+        // 1. Generar número de serie
+        const ultimaVenta = await ventas.findOne().sort({ createdAt: -1 });
+        data.serie = ultimaVenta ? ultimaVenta.serie + 1 : 1;
 
-        // 3. Crea venta (¡con session!)
-        const [venta] = await ventas.create([data], { session });
+        // 2. Validar stock ANTES de crear la venta
+        for (const item of data.detalles) {
+            const productoDB = await producto.findById(item.producto);
+            const variedadDB = await variedad.findById(item.variedad);
 
-        // 4. Procesa detalles y stocks
+            if (!productoDB || productoDB.stock < item.cantidad) {
+                throw new Error(`Stock insuficiente para el producto ${item.producto}`);
+            }
+            if (!variedadDB || variedadDB.stock < item.cantidad) {
+                throw new Error(`Stock insuficiente para la variedad ${item.variedad}`);
+            }
+        }
+
+        // 3. Crear venta (si pasó las validaciones)
+        const venta = await ventas.create(data);
+
+        // 4. Procesar detalles y actualizar stocks
         for (const item of data.detalles) {
             item.venta = venta._id;
 
-            // 4.1 Valida stock ANTES de modificar
-            const product = await producto.findById(item.producto).session(session);
-            const variant = await variedad.findById(item.variedad).session(session);
-            
-            if (!product || product.stock < item.cantidad) throw new Error(`Stock insuficiente para ${item.producto}`);
-            if (!variant || variant.stock < item.cantidad) throw new Error(`Stock insuficiente en variedad ${item.variedad}`);
+            // Crear detalle
+            await detalles_ventas.create(item);
 
-            // 4.2 Crea detalle y actualiza stock (en transacción)
-            await detalles_ventas.create([{ ...item }], { session });
-            await producto.findByIdAndUpdate(item.producto, { $inc: { stock: -item.cantidad } }, { session });
-            await variedad.findByIdAndUpdate(item.variedad, { $inc: { stock: -item.cantidad } }, { session });
+            // Actualizar stocks
+            await producto.findByIdAndUpdate(
+                item.producto,
+                { $inc: { stock: -item.cantidad } }
+            );
+            await variedad.findByIdAndUpdate(
+                item.variedad,
+                { $inc: { stock: -item.cantidad } }
+            );
         }
 
-        // 5. Borra carrito (¡si todo lo anterior funcionó!)
-        await carrito.deleteMany({ cliente: data.cliente }).session(session);
+        // 5. Borrar carrito (si todo salió bien)
+        await carrito.deleteMany({ cliente: data.cliente });
 
-        // 6. Confirma transacción
-        await session.commitTransaction();
         res.status(200).send({ venta });
 
     } catch (error) {
-        // 7. Revierte TODOS los cambios si hay error
-        await session.abortTransaction(); 
+        console.error('Error en el proceso:', error);
         
-        console.error('Error transaccional:', error);
+        // Revertir cambios manualmente si es necesario
+        if (venta) {
+            await ventas.findByIdAndDelete(venta._id);
+            await detalles_ventas.deleteMany({ venta: venta._id });
+        }
+
         res.status(500).send({
             success: false,
-            message: 'Error completo al generar la orden',
+            message: 'Error al generar la orden',
             error: error.message
         });
-    } finally {
-        // 8. Libera recursos
-        session.endSession();
     }
 };
 module.exports ={
