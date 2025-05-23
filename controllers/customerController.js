@@ -232,8 +232,6 @@ const crear_venta_spei_cliente = async function(req, res) {
 
     } catch (error) {
         console.error('Error en el proceso:', error);
-        }
-
         res.status(500).send({
             success: false,
             message: 'Error al generar la orden',
