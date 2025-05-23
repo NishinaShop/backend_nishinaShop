@@ -215,7 +215,11 @@ const crear_venta_spei_cliente = async function(req,res){
         await carrito.deleteMany({cliente:data.cliente})
         res.status(200).send({venta})
         } catch (error) {
-            res.status(200).send({data: undefined, message: 'No se pudo generar la orden '})
+            res.status(200).send({data: undefined, message: 'No se pudo generar la orden', errorDetails: {
+      message: error.message, // Mensaje básico del error
+      name: error.name, // Tipo de error
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined // Stack solo en desarrollo
+    }})
         }
     }else{
         res.status(500).send({data: undefined, message: 'Error al validar el token'})
