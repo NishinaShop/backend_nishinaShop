@@ -184,14 +184,19 @@ const crear_venta_spei_cliente = async function(req, res) {
 
     try {
         let data = req.body;
+        
+        // 1. Agregar campos requeridos por tu esquema
+        const fecha = new Date();
+        data.year = fecha.getFullYear();
+        data.month = fecha.getMonth(); // 0-11
+        data.day = fecha.getDate();
         data.estado = 'Pendiente';
-        data.createdAt = new Date();
 
-        // 1. Generar número de serie
+        // 2. Generar número de serie
         const ultimaVenta = await ventas.findOne().sort({ createdAt: -1 });
         data.serie = ultimaVenta ? ultimaVenta.serie + 1 : 1;
 
-        // 2. Validar stock ANTES de crear la venta
+        // 3. Validar stock
         for (const item of data.detalles) {
             const productoDB = await producto.findById(item.producto);
             const variedadDB = await variedad.findById(item.variedad);
@@ -204,38 +209,32 @@ const crear_venta_spei_cliente = async function(req, res) {
             }
         }
 
-        // 3. Crear venta (si pasó las validaciones)
+        // 4. Crear venta
         const venta = await ventas.create(data);
 
-        // 4. Procesar detalles y actualizar stocks
+        // 5. Procesar detalles y actualizar stocks
         for (const item of data.detalles) {
             item.venta = venta._id;
+            item.year = data.year; // Opcional: si detalles también requieren estos campos
+            item.month = data.month;
+            item.day = data.day;
 
-            // Crear detalle
             await detalles_ventas.create(item);
-
-            // Actualizar stocks
-            await producto.findByIdAndUpdate(
-                item.producto,
-                { $inc: { stock: -item.cantidad } }
-            );
-            await variedad.findByIdAndUpdate(
-                item.variedad,
-                { $inc: { stock: -item.cantidad } }
-            );
+            await producto.findByIdAndUpdate(item.producto, { $inc: { stock: -item.cantidad } });
+            await variedad.findByIdAndUpdate(item.variedad, { $inc: { stock: -item.cantidad } });
         }
 
-        // 5. Borrar carrito (si todo salió bien)
+        // 6. Limpiar carrito
         await carrito.deleteMany({ cliente: data.cliente });
 
         res.status(200).send({ venta });
 
     } catch (error) {
-        console.error('Error en el proceso:', error);
-        res.status(500).send({
+        console.error('Error:', error.message);
+        res.status(500).send({ 
             success: false,
             message: 'Error al generar la orden',
-            error: error.message
+            error: error.message 
         });
     }
 };
