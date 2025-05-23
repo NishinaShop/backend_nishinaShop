@@ -2,6 +2,7 @@ var carrito = require ('../models/carrito')
 var variedad = require ('../models/variedades')
 var direcciones = require ('../models/direcciones')
 var clientes = require ('../models/cliente')
+var producto = require('../models/producto')
 var ventas= require ('../models/venta')
 var detalles_ventas = require ('../models/detalles_venta')
 const axios = require('axios');
@@ -231,11 +232,6 @@ const crear_venta_spei_cliente = async function(req, res) {
 
     } catch (error) {
         console.error('Error en el proceso:', error);
-        
-        // Revertir cambios manualmente si es necesario
-        if (venta) {
-            await ventas.findByIdAndDelete(venta._id);
-            await detalles_ventas.deleteMany({ venta: venta._id });
         }
 
         res.status(500).send({
