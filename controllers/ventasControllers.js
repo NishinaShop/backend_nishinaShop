@@ -85,12 +85,13 @@ const obtener_salidas_admin = async function(req,res){
   if (req.user){
     let desde = req.params['desde'];
     let hasta = req.params['hasta'];
-    let ventasFiltro = await ventas.find({
+    let ventasFiltro = await detalles_ventas.find({
       createdAt: {
         $gte: new Date(desde+'T00:00:00'),
         $lt: new Date(hasta+'T00:00:00')
       }
-    })
+    }).populate('producto')
+    
     res.status(200).send(ventasFiltro)
   }else{
     res.status(500).send({data: undefined, message: 'Error en el token'})
