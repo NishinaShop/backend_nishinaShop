@@ -90,7 +90,7 @@ const obtener_salidas_admin = async function(req,res){
         $gte: new Date(desde+'T00:00:00'),
         $lt: new Date(hasta+'T00:00:00')
       }
-    }).populate('producto')
+    }).populate('producto').populate('variedad')
     
     res.status(200).send(ventasFiltro)
   }else{
