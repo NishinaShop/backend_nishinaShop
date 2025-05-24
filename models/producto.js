@@ -10,6 +10,7 @@ var producto_schema = schema({
     precio : {type: Number, default: 0, requiered: false},
     descripcion : {type: String, requiered: true},
     stock: {type: Number, default: 0,requiered: true},
+    stock_fisico: {type: Number, default: 0,requiered: true},
     estado : {type: Boolean, requiered: true},
     descuento : {type: Boolean, requiered: true},
     updatedAt : {type: Date, requiered: false},

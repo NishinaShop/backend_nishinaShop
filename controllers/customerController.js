@@ -111,47 +111,64 @@ const validar_payment_id_venta = async function(req, res) {
   }
 }
 const crear_venta_cliente = async function(req,res){
-    if(req.user){
-        let data = req.body
-        data.year = new Date().getFullYear();
-        data.month = new Date().getMonth();
-        data.day = new Date().getDate();
-        data.estado = 'Pagado'
-        let Venta = await ventas.find().sort({ createdAt: -1 });
+    if (!req.user) {
+        return res.status(401).send({ message: 'Error al validar el token' });
+    }
 
-        if (Venta.length === 0) {
-            data.serie = 1;
-        } else {
-            data.serie = Venta[0].serie + 1;
+    try {
+        let data = req.body;
+        
+        // 1. Agregar campos requeridos por tu esquema
+        const fecha = new Date();
+        data.year = fecha.getFullYear();
+        data.month = fecha.getMonth(); // 0-11
+        data.day = fecha.getDate();
+        data.estado = 'Pagado';
+
+        // 2. Generar número de serie
+        const ultimaVenta = await ventas.findOne().sort({ createdAt: -1 });
+        data.serie = ultimaVenta ? ultimaVenta.serie + 1 : 1;
+
+        // 3. Validar stock
+        for (const item of data.detalles) {
+            const productoDB = await producto.findById(item.producto);
+            const variedadDB = await variedad.findById(item.variedad);
+
+            if (!productoDB || productoDB.stock < item.cantidad) {
+                throw new Error(`Stock insuficiente para el producto ${item.producto}`);
+            }
+            if (!variedadDB || variedadDB.stock < item.cantidad) {
+                throw new Error(`Stock insuficiente para la variedad ${item.variedad}`);
+            }
         }
-        
-        let venta = await ventas.create(data)
-        
-        for(var item of data.detalles){
-            item.year = new Date().getFullYear();
-            item.month = new Date().getMonth();
-            item.day = new Date().getDate();
-            item.venta = venta._id
-            
-            // Crear el detalle de venta
-            await detalles_ventas.create(item)
-            
-            // Actualizar stock del producto principal
-            await producto.findByIdAndUpdate(item.producto, {
-                $inc: {stock: -item.cantidad},
-                updatedAt: new Date()
-            });
-            
-            // Actualizar stock de la variedad
-            await variedad.findByIdAndUpdate(item.variedad, {
-                $inc: {stock: -item.cantidad}
-            });
+
+        // 4. Crear venta
+        const venta = await ventas.create(data);
+
+        // 5. Procesar detalles y actualizar stocks
+        for (const item of data.detalles) {
+            item.venta = venta._id;
+            item.year = data.year; // Opcional: si detalles también requieren estos campos
+            item.month = data.month;
+            item.day = data.day;
+
+            await detalles_ventas.create(item);
+            await producto.findByIdAndUpdate(item.producto, { $inc: { stock: -item.cantidad } });
+            await variedad.findByIdAndUpdate(item.variedad, { $inc: { stock: -item.cantidad } });
         }
-        
-        await carrito.deleteMany({cliente:data.cliente})
-        res.status(200).send({venta})
-    }else{
-        res.status(500).send({data: undefined, message: 'Error al validar el token'})
+
+        // 6. Limpiar carrito
+        await carrito.deleteMany({ cliente: data.cliente });
+
+        res.status(200).send({ venta });
+
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).send({ 
+            success: false,
+            message: 'Error al generar la orden',
+            error: error.message 
+        });
     }
 }
 const obtener_venta= async function(req,res){
