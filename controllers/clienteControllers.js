@@ -38,7 +38,7 @@ const login_cliente = async function (req,res){
             res.status(200).send({data: undefined, message: 'Su cuenta esta desactivada'})
         }
     }else {
-        res.status(200).send({data: undefined, message: 'El correo electonico no existe'});
+        res.status(200).send({data: undefined, message: 'El correo electronico no existe'});
     }
 }
 module.exports ={
