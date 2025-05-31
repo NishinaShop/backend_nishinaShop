@@ -166,7 +166,7 @@ const actualizar_producto_admin = async function(req, res) {
       res.status(500).send({data: undefined, message: 'ErrorToken'})
     }
   }
-const eliminar_producto_producto_admin = async function(req,res){
+const eliminar_producto_admin = async function(req,res){
     if(req.user){
       if(req.user.rol == 'Administrador'){
         let id = req.params['id'];
