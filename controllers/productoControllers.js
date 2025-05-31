@@ -178,6 +178,8 @@ const eliminar_producto_admin = async function(req,res){
         res.status(200).send({data: undefined, message: 'No se puede eliminar el registro'})
       }
       
+      }else{
+        res.status(200).send({data: undefined, message: 'No cuentas con permiso para esa accion'})
       }
     }else{
       res.status(500).send({data: undefined, message: 'ErrorToken'})
