@@ -166,6 +166,24 @@ const actualizar_producto_admin = async function(req, res) {
       res.status(500).send({data: undefined, message: 'ErrorToken'})
     }
   }
+const eliminar_producto_producto_admin = async function(req,res){
+    if(req.user){
+      if(req.user.rol == 'Administrador'){
+        let id = req.params['id'];
+      let reg = await producto.findById({_id: id})
+      if(reg.stock == 0){
+        let product = await producto.findOneAndDelete({_id:id})
+        res.status(201).send(product)
+      }else{
+        res.status(200).send({data: undefined, message: 'No se puede eliminar el registro'})
+      }
+      
+      }
+    }else{
+      res.status(500).send({data: undefined, message: 'ErrorToken'})
+    }
+  }
+
   const eliminar_variedades_producto = async function(req,res){
     if(req.user){
       let id = req.params['id'];
@@ -394,6 +412,7 @@ module.exports = {
     actualizar_producto_admin,
     registro_variedad_producto,
     obtener_variedades_producto,
+    eliminar_producto_admin,
     eliminar_variedades_producto,
     listar_productos_activos_admin,
     registro_ingresos_admin,

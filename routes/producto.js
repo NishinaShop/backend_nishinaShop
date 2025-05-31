@@ -11,6 +11,7 @@ var path_galeria = multipart({uploadDir: './uploads/galeria'})
 api.post('/registro_producto_admin', [authenticate.decodeToken,path], productoController.registro_producto_admin);
 api.get('/listar_productos_admin', authenticate.decodeToken, productoController.listar_productos_admin);
 api.get('/listar_productos_activos_admin',authenticate.decodeToken, productoController.listar_productos_activos_admin);
+api.delete('/eliminar_producto_admin/:id', authenticate.decodeToken, productoController.eliminar_producto_admin)
 
 api.get('/obtener_portada_producto/:img', productoController.obtener_portada_producto);
 api.get('/obtener_producto_admin/:id', authenticate.decodeToken, productoController.obtener_producto_admin);
