@@ -102,7 +102,7 @@ const obtener_producto_admin = async function(req,res){
 const actualizar_producto_admin = async function(req, res) {
   try {
     if (!req.user) return res.status(401).send({ message: 'Error de autenticación' });
-    if (req.user.rol != 'Administador'){
+    if (req.user.rol != 'Administrador'){
       res.status(200).send({ message: 'No tienes permiso' })
     }else{
       const id = req.params.id;
