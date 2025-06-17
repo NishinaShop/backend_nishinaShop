@@ -31,5 +31,6 @@ api.get('/obtener_galeria_producto_admin/:id', authenticate.decodeToken, product
 api.delete('/eliminar_galeria_producto_admin/:id', authenticate.decodeToken, productoController.eliminar_galeria_producto_admin)
 /// Categorias
 api.post('/agregar_categoria', authenticate.decodeToken, productoController.agregar_categoria)
+api.get('/listar_categorias', authenticate.decodeToken, productoController.listar_categorias)
 
 module.exports = api;

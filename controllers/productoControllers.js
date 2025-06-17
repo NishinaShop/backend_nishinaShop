@@ -424,6 +424,15 @@ if (req.user){
   res.status(500).send({data: undefined, message: 'Error en el token'})
 }
 }
+
+const listar_categorias = async function(req,res){
+if (req.user){
+  var categorias = await categoria.find().sort({titulo: 1});
+  res.status(200).send(categorias)  
+}else{
+  res.status(500).send({data: undefined, message: 'Error en el token'})
+}
+}
 module.exports = {
     registro_producto_admin,
     listar_productos_admin,
@@ -444,4 +453,5 @@ module.exports = {
     subir_factura_admin,
     obtener_detalles_ingreso_admin,
     agregar_categoria,
+    listar_categorias,
 }
