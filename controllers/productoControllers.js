@@ -409,37 +409,56 @@ const obtener_detalles_ingreso_admin = async function(req,res){
 }
 
 const agregar_categoria = async function(req,res){
-if (req.user){
-  let data = req.body
-  var reg = await categoria.find({titulo:data.titulo})
-  if(reg.length == 0){
-    data.slug = slugify(data.titulo).toLowerCase()
-    var category = await categoria.create(data);
-  res.status(200).send(category)
+  if (req.user){
+    let data = req.body
+    var reg = await categoria.find({titulo:data.titulo})
+    if(reg.length == 0){
+      data.slug = slugify(data.titulo).toLowerCase()
+      var category = await categoria.create(data);
+    res.status(200).send(category)
+    }else{
+      res.status(200).send({data: undefined, message: 'Categoria existente'})
+    }
+    
   }else{
-    res.status(200).send({data: undefined, message: 'Categoria existente'})
+    res.status(500).send({data: undefined, message: 'Error en el token'})
   }
-  
-}else{
-  res.status(500).send({data: undefined, message: 'Error en el token'})
-}
 }
 
 const listar_categorias = async function(req,res){
-if (req.user){
-  var regs = await categoria.find().sort({titulo: 1});
-  var categorias = []
-  for(item of regs){
-var productos = await producto.find({categoria: item.titulo})
-categorias.push({
-  categoria: item,
-  n_productos: productos.length
-})
+  if (req.user){
+    var regs = await categoria.find().sort({titulo: 1});
+    var categorias = []
+    for(item of regs){
+  var productos = await producto.find({categoria: item.titulo})
+  categorias.push({
+    categoria: item,
+    n_productos: productos.length
+  })
+    }
+    res.status(200).send(categorias)  
+  }else{
+    res.status(500).send({data: undefined, message: 'Error en el token'})
   }
-  res.status(200).send(categorias)  
-}else{
-  res.status(500).send({data: undefined, message: 'Error en el token'})
 }
+
+const cambiar_estado_categoria = async function(req,res){
+    if(req.user){
+        let id = req.params['id'];
+        let data = req.body;
+        let nuevoEstado = false;
+        if (data.estado){
+            nuevoEstado = false;
+        } else {
+            nuevoEstado = true;
+        }
+        let categoty = await categoria.findByIdAndUpdate({_id: id},{
+            estado: nuevoEstado,
+        });
+        res.status(200).send(categoty)
+    }else{
+        res.status(500).send({data:undefined,message: 'ErrorToken'});
+    }
 }
 module.exports = {
     registro_producto_admin,
@@ -462,4 +481,5 @@ module.exports = {
     obtener_detalles_ingreso_admin,
     agregar_categoria,
     listar_categorias,
+    cambiar_estado_categoria,
 }
