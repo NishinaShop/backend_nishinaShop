@@ -415,7 +415,7 @@ if (req.user){
   if(reg.length == 0){
     data.slug = slugify(data.titulo).toLowerCase()
     var category = await categoria.create(data);
-  res.starus(200).send(category)
+  res.status(200).send(category)
   }else{
     res.status(200).send({data: undefined, message: 'Categoria existente'})
   }
