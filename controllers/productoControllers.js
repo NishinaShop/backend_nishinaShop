@@ -4,6 +4,7 @@ var ingreso = require('../models/ingreso');
 var ingreso_detalles = require('../models/ingreso_detalles')
 var galeria = require ('../models/galeria')
 var usuario = require ('../models/usuario') 
+var categoria = require ('../models/categorias') 
 var slugify = require ('slugify')
 const cloudinary = require('../config/cloudinary');
 var fs = require ('fs');
@@ -406,6 +407,23 @@ const obtener_detalles_ingreso_admin = async function(req,res){
     res.status(500).send({data: undefined, message: 'Error en el token'})
   }
 }
+
+const agregar_categoria = async function(req,res){
+if (req.user){
+  let data = req.body
+  var reg = await categoria.find({titulo:data.titulo})
+  if(reg.length == 0){
+    data.slug = slugify(data.titulo).toLowerCase()
+    var category = await categoria.create(data);
+  res.starus(200).send(category)
+  }else{
+    res.status(200).send({data: undefined, message: 'Categoria existente'})
+  }
+  
+}else{
+  res.status(500).send({data: undefined, message: 'Error en el token'})
+}
+}
 module.exports = {
     registro_producto_admin,
     listar_productos_admin,
@@ -425,4 +443,5 @@ module.exports = {
     obtener_ingresos_admin,
     subir_factura_admin,
     obtener_detalles_ingreso_admin,
+    agregar_categoria,
 }
