@@ -427,10 +427,16 @@ if (req.user){
 
 const listar_categorias = async function(req,res){
 if (req.user){
-  var categorias = await categoria.find().sort({titulo: 1});
-  var productos = await producto.find({categoria: categorias.titulo})
-  var n_productos = productos.length
-  res.status(200).send({categorias,n_productos})  
+  var regs = await categoria.find().sort({titulo: 1});
+  var categorias = []
+  for(item of regs){
+var productos = await producto.find({categoria: categorias.titulo})
+categorias.push({
+  categoria: item,
+  n_productos: productos.length
+})
+  }
+  res.status(200).send(categorias)  
 }else{
   res.status(500).send({data: undefined, message: 'Error en el token'})
 }
