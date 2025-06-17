@@ -430,7 +430,7 @@ if (req.user){
   var regs = await categoria.find().sort({titulo: 1});
   var categorias = []
   for(item of regs){
-var productos = await producto.find({categoria: categorias.titulo})
+var productos = await producto.find({categoria: item.titulo})
 categorias.push({
   categoria: item,
   n_productos: productos.length
