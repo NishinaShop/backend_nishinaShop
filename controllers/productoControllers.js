@@ -473,14 +473,22 @@ const agregar_color =  async function (req,res){
 }
 
 const obtener_colores =  async function (req,res){
-  if(req.user){
-    let id = req.params['id'];
-    let colors = await color.find({producto:id}).sort({stock:-1})
-    res.status(201).send(colors)
-  }else{
-    res.status(500).send({data: undefined, message: 'Error de token'})
+    if(req.user){
+      let id = req.params['id'];
+      let colors = await color.find({producto:id})
+      var variedades = []
+      for(var item of colors){
+        var tallas = await talla.find({color:_id})
+        variedades.push({
+          colores: item,
+          tallas: tallas 
+        })
+      }
+      res.status(201).send(variedades)
+    }else{
+      res.status(500).send({data: undefined, message: 'Error de token'})
+    }
   }
-}
 
 const agregar_talla =  async function (req,res){
   if(req.user){
@@ -491,7 +499,6 @@ const agregar_talla =  async function (req,res){
     res.status(500).send({data: undefined, message: 'Error de token'})
   }
 }
-
 module.exports = {
     registro_producto_admin,
     listar_productos_admin,
