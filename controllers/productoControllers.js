@@ -484,7 +484,6 @@ const obtener_colores =  async function (req,res){
 
 const agregar_talla =  async function (req,res){
   if(req.user){
-    let id = req.params['id'];
     let data = req.body
     let tallas = await talla.create(data);
     res.status(201).send(tallas)
