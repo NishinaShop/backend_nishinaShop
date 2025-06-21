@@ -472,6 +472,16 @@ const agregar_color =  async function (req,res){
   }
 }
 
+const obtener_colores =  async function (req,res){
+  if(req.user){
+    let id = req.params['id'];
+    let colors = await color.find({producto:id}).sort({stock:-1})
+    res.status(201).send(colors)
+  }else{
+    res.status(500).send({data: undefined, message: 'Error de token'})
+  }
+}
+
 const agregar_talla =  async function (req,res){
   if(req.user){
     let id = req.params['id'];
@@ -507,4 +517,5 @@ module.exports = {
     cambiar_estado_categoria,
     agregar_color,
     agregar_talla,
+    obtener_colores,
 }

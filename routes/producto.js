@@ -33,5 +33,8 @@ api.delete('/eliminar_galeria_producto_admin/:id', authenticate.decodeToken, pro
 api.post('/agregar_categoria', authenticate.decodeToken, productoController.agregar_categoria)
 api.get('/listar_categorias', authenticate.decodeToken, productoController.listar_categorias)
 api.put('/cambiar_estado_categoria/:id', authenticate.decodeToken, productoController.cambiar_estado_categoria)
+/// VariedadesNuevo
+api.post('/agregar_color', authenticate.decodeToken, productoController.agregar_color)
+api.get('/obtener_colores/:id', authenticate.decodeToken, productoController.obtener_colores)
 
 module.exports = api;
