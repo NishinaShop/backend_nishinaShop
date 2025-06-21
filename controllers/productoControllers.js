@@ -478,7 +478,7 @@ const obtener_colores =  async function (req,res){
       let colors = await color.find({producto:id})
       var variedades = []
       for(var item of colors){
-        var tallas = await talla.find({color:_id})
+        var tallas = await talla.find({color:item._id})
         variedades.push({
           colores: item,
           tallas: tallas 
