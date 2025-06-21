@@ -4,7 +4,9 @@ var ingreso = require('../models/ingreso');
 var ingreso_detalles = require('../models/ingreso_detalles')
 var galeria = require ('../models/galeria')
 var usuario = require ('../models/usuario') 
-var categoria = require ('../models/categorias') 
+var categoria = require ('../models/categorias')
+var color = require ('../models/colores')
+var talla = require ('../models/tallas')
 var slugify = require ('slugify')
 const cloudinary = require('../config/cloudinary');
 var fs = require ('fs');
@@ -460,6 +462,27 @@ const cambiar_estado_categoria = async function(req,res){
         res.status(500).send({data:undefined,message: 'ErrorToken'});
     }
 }
+const agregar_color =  async function (req,res){
+  if(req.user){
+    let data = req.body
+    let colors = await color.create(data);
+    res.status(201).send(colors)
+  }else{
+    res.status(500).send({data: undefined, message: 'Error de token'})
+  }
+}
+
+const agregar_talla =  async function (req,res){
+  if(req.user){
+    let id = req.params['id'];
+    let data = req.body
+    let tallas = await talla.create(data);
+    res.status(201).send(tallas)
+  }else{
+    res.status(500).send({data: undefined, message: 'Error de token'})
+  }
+}
+
 module.exports = {
     registro_producto_admin,
     listar_productos_admin,
@@ -482,4 +505,6 @@ module.exports = {
     agregar_categoria,
     listar_categorias,
     cambiar_estado_categoria,
+    agregar_color,
+    agregar_talla,
 }
