@@ -357,8 +357,20 @@ const subir_factura_admin = async function(req, res) {
 const obtener_galeria_producto_admin = async function(req,res){
   if(req.user){
     let id = req.params['id'];
-    let galery = await galeria.find({producto:id})
-    res.status(200).send(galery)
+    let galery = await galeria.find({producto:id}).populate('color')
+    var galeriaPorColor =  {}
+    galery.forEach(item => {
+      let colorID = item.color._id;
+
+      if(!galeriaPorColor[colorID]){
+        galeriaPorColor[colorID] = {
+          color : item.color,
+          imagenes: []
+        }
+      }
+      galeriaPorColor[colorID].imagenes.push(item.imagen)
+    })
+    res.status(200).send(galeriaPorColor)
   }else{
     res.status(500).send({data:undefined, message: 'errorToken'})
   }
