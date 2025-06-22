@@ -493,7 +493,7 @@ const obtener_colores =  async function (req,res){
 const agregar_talla =  async function (req,res){
   if(req.user){
     try {
-    let reg = await talla.findOne({ talla: data.talla, color: data.color });
+    let reg = await talla.findOne({ talla: data.talla, color: data._id });
     if (!reg) {
       let nuevaTalla = await talla.create(data);
       res.status(201).send(nuevaTalla);
@@ -502,6 +502,7 @@ const agregar_talla =  async function (req,res){
     }
 
   } catch (error) {
+    console.log('ERROR al registrar la talla:', error); 
     res.status(500).send({ data: undefined, message: 'Error al registrar la talla', error });
   }
   }else{
