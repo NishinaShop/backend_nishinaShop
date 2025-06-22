@@ -492,15 +492,18 @@ const obtener_colores =  async function (req,res){
 
 const agregar_talla =  async function (req,res){
   if(req.user){
-    let data = req.body
-    let reg = await talla.find({talla: data.talla})
-    if(reg.length == 0){
-    let tallas = await talla.create(data);
-    res.status(201).send(tallas)
-    }else{
-      res.status(200).send({data: undefined, message: 'La talla ya existe'})
+    try {
+    let reg = await talla.findOne({ talla: data.talla, color: data.color });
+    if (!reg) {
+      let nuevaTalla = await talla.create(data);
+      res.status(201).send(nuevaTalla);
+    } else {
+      res.status(200).send({ data: undefined, message: 'La talla ya existe para ese color' });
     }
-    
+
+  } catch (error) {
+    res.status(500).send({ data: undefined, message: 'Error al registrar la talla', error });
+  }
   }else{
     res.status(500).send({data: undefined, message: 'Error de token'})
   }
