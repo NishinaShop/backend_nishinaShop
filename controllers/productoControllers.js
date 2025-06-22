@@ -493,8 +493,44 @@ const obtener_colores =  async function (req,res){
 const agregar_talla =  async function (req,res){
   if(req.user){
     let data = req.body
+    let reg = await talla.find({talla: data.talla})
+    if(reg.length == 0){
     let tallas = await talla.create(data);
     res.status(201).send(tallas)
+    }else{
+      res.status(200).send({data: undefined, message: 'La talla ya existe'})
+    }
+    
+  }else{
+    res.status(500).send({data: undefined, message: 'Error de token'})
+  }
+}
+
+const eliminar_talla =  async function (req,res){
+  if(req.user){
+    let id = req.params['id']
+    let tallas = await talla.findById({_id:id})
+    if(tallas.stock == 0){
+      let Tallas = await talla.findOneAndDelete({_id:id})
+      res.status(200).send(Tallas)
+    }else{
+        res.status(200).send({data: undefined, message: 'No se puede eliminar el registro'})
+      }
+  }else{
+    res.status(500).send({data: undefined, message: 'Error de token'})
+  }
+}
+
+const eliminar_color =  async function (req,res){
+  if(req.user){
+    let id = req.params['id']
+    let colores = await color.findById({_id:id})
+    if(colores.stock == 0){
+        let colors = await color.findOneAndDelete({_id:id})
+        res.status(201).send(colors)
+      }else{
+        res.status(200).send({data: undefined, message: 'No se puede eliminar el registro'})
+      }
   }else{
     res.status(500).send({data: undefined, message: 'Error de token'})
   }
@@ -524,4 +560,6 @@ module.exports = {
     agregar_color,
     agregar_talla,
     obtener_colores,
+    eliminar_color,
+    eliminar_talla,
 }

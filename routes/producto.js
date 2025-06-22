@@ -37,6 +37,7 @@ api.put('/cambiar_estado_categoria/:id', authenticate.decodeToken, productoContr
 api.post('/agregar_color', authenticate.decodeToken, productoController.agregar_color)
 api.get('/obtener_colores/:id', authenticate.decodeToken, productoController.obtener_colores)
 api.post('/agregar_talla', authenticate.decodeToken, productoController.agregar_talla)
-
+api.delete('/eliminar_color/:id', authenticate.decodeToken, productoController.eliminar_color);
+api.delete('/eliminar_talla/:id', authenticate.decodeToken, productoController.eliminar_talla);
 
 module.exports = api;
