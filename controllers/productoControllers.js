@@ -523,14 +523,22 @@ const eliminar_talla =  async function (req,res){
 
 const eliminar_color =  async function (req,res){
   if(req.user){
-    let id = req.params['id']
-    let colores = await color.findById({_id:id})
-    if(colores.stock == 0){
-        let colors = await color.findOneAndDelete({_id:id})
-        res.status(201).send(colors)
-      }else{
-        res.status(200).send({data: undefined, message: 'No se puede eliminar el registro'})
+    let id = req.params['id']    
+    try {
+      let tallasEnlazadas = await talla.find({ color: id });
+      if (tallasEnlazadas.length === 0) {
+        let colorEliminado = await color.findByIdAndDelete(id);
+        res.status(201).send(colorEliminado);
+      } else {
+        res.status(200).send({
+          data: undefined,
+          message: 'No se puede eliminar el color porque tiene tallas asociadas'
+        });
       }
+    } catch (error) {
+      res.status(500).send({ data: undefined, message: 'Error en la operación', error });
+    }
+
   }else{
     res.status(500).send({data: undefined, message: 'Error de token'})
   }
