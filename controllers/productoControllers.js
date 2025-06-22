@@ -492,6 +492,7 @@ const obtener_colores =  async function (req,res){
 
 const agregar_talla =  async function (req,res){
   if(req.user){
+    let data = req.body
     try {
     let reg = await talla.findOne({ talla: data.talla, color: data._id });
     if (!reg) {
