@@ -1,6 +1,8 @@
 var producto = require ('../models/producto')
 var variedad = require ('../models/variedades')
 var galeria = require ('../models/galeria')
+var color = require ('../models/colores')
+var talla = require ('../models/tallas')
 
 
 const obtener_ultimos_productos = async  function(req,res){
@@ -26,9 +28,29 @@ const obtener_catalogo_publicos = async  function(req,res){
 const obtener_slug_producto = async  function(req,res){
     var slug = req.params['slug']
     var product = await producto.findOne({slug:slug})
-    var variety = await variedad.find({producto:product._id})
-    var galery = await galeria.find({producto:product._id})
-    res.status(200).send({product, variety, galery})
+    let colors = await color.find({producto:product._id})
+          var variedades = []
+          for(var item of colors){
+            var tallas = await talla.find({color:item._id})
+            variedades.push({
+              colores: item,
+              tallas: tallas 
+            })
+          }
+    var galery = await galeria.find({producto:product._id}).populate('color')
+    var galeriaPorColor =  {}
+    galery.forEach(item => {
+      let colorID = item.color._id;
+
+      if(!galeriaPorColor[colorID]){
+        galeriaPorColor[colorID] = {
+          color : item.color,
+          imagenes: []
+        }
+      }
+      galeriaPorColor[colorID].imagenes.push(item.imagen)
+    })
+    res.status(200).send({product, variedades, galeriaPorColor})
 }
 
 
