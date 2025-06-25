@@ -377,10 +377,10 @@ const obtener_galeria_producto_admin = async function(req,res){
 }
 const eliminar_galeria_producto_admin = async function(req,res){
   if(req.user){
-    let id = req.params['id'];
+    let url = req.params['url'];
     try {
    
-    let galery = await galeria.findByIdAndDelete({_id:id})
+    let galery = await galeria.findByIdAndDelete({imagen:url})
     res.status(200).send(galery)
     } catch (error) {
       console.log(error)
