@@ -368,7 +368,10 @@ const obtener_galeria_producto_admin = async function(req,res){
           imagenes: []
         }
       }
-      galeriaPorColor[colorID].imagenes.push(item.imagen)
+      galeriaPorColor[colorID].imagenes.push({
+        imagen: item.imagen,
+        id: item._id
+      })
     })
     res.status(200).send(galeriaPorColor)
   }else{
@@ -377,10 +380,9 @@ const obtener_galeria_producto_admin = async function(req,res){
 }
 const eliminar_galeria_producto_admin = async function(req,res){
   if(req.user){
-    let url = req.params['url'];
+    let id = req.params['id'];
     try {
-   
-    let galery = await galeria.findByIdAndDelete({imagen:url})
+    let galery = await galeria.findByIdAndDelete({_id:id})
     res.status(200).send(galery)
     } catch (error) {
       console.log(error)
