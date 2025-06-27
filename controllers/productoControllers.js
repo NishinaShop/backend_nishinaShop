@@ -259,7 +259,7 @@ const eliminar_producto_admin = async function(req,res){
         for (var item of detalles) {
             item.ingreso = add_ingreso._id;
             await ingreso_detalles.create(item);
-            await variedad.findByIdAndUpdate(
+            await talla.findByIdAndUpdate(
                 item.variedad,
                 { $inc: { stock: parseInt(item.cantidad) } }
             );
