@@ -276,10 +276,21 @@ const eliminar_producto_admin = async function(req,res){
         res.status(200).send(add_ingreso);
 
     } catch (error) {
-        // Eliminar archivo temporal en caso de error
-        if (req.files?.documento?.path) fs.unlinkSync(req.files.documento.path);
-        res.status(200).send({ message: 'No se pudo registrar el ingreso', error: error.message });
+    // Eliminar archivo temporal en caso de error, sin romper el catch
+    if (req.files?.documento?.path) {
+        const filePath = req.files.documento.path;
+        try {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        } catch (fsError) {
+            console.error("Error al eliminar el archivo temporal:", fsError);
+        }
     }
+
+    console.error("Error en registro_ingresos_admin:", error);
+    res.status(200).send({ message: 'No se pudo registrar el ingreso', error: error.message });
+}
   } else {
       res.status(500).send({ data: undefined, message: "ErrorToken" });
   }
