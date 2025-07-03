@@ -271,7 +271,7 @@ const eliminar_producto_admin = async function(req,res){
 
     return res.status(200).send(add_ingreso);
 
-  } catch (error) {
+  } catch (error) { 
     // 5. Eliminar archivo si quedó cargado
     if (req.files?.documento?.path) {
       try { fs.unlinkSync(req.files.documento.path); }
@@ -290,9 +290,11 @@ const eliminar_producto_admin = async function(req,res){
     }
 
     return res.status(200).send({
-      message: 'No se pudo registrar el ingreso',
-      error: error.message,
-    });
+    message: 'No se pudo registrar el ingreso',
+    error: error.message || 'Error desconocido',
+    name: error.name,
+    stack: error.stack,
+  });
   }
 };
 
