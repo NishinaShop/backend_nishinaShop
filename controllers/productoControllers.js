@@ -255,7 +255,8 @@ const eliminar_producto_admin = async function(req,res){
         data.usuario = req.user.sub;
         let detalles = JSON.parse(data.detalles);
         let add_ingreso = await ingreso.create(data);
-
+        console.log(detalles);
+        
         for (var item of detalles) {
             item.ingreso = add_ingreso._id;
             await ingreso_detalles.create(item);
