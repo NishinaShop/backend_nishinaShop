@@ -260,6 +260,7 @@ const eliminar_producto_admin = async function(req,res){
         console.log(detalles);
         
         for (var item of detalles) {
+            item.usuario = req.user.sub
             item.ingreso = add_ingreso._id;
             await ingreso_detalles.create(item);
             await talla.findByIdAndUpdate(
