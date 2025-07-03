@@ -253,6 +253,8 @@ const eliminar_producto_admin = async function(req,res){
 
         // 4. Procesar registro y detalles (lógica original)
         data.usuario = req.user.sub;
+        console.log(data.usuario);
+        
         let detalles = JSON.parse(data.detalles);
         let add_ingreso = await ingreso.create(data);
         console.log(detalles);
