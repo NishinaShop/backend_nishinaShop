@@ -215,75 +215,87 @@ const eliminar_producto_admin = async function(req,res){
     }
   }
 
-  const registro_ingresos_admin = async function(req,res){
-    if (req.user) {
-    let data = req.body;
-    
-    try {
-        // 1. Validar si el ncomprobante ya existe
-        const comprobanteExistente = await ingreso.findOne({ ncomprobante: data.ncomprobante });
-        if (comprobanteExistente) {
-            // Eliminar archivo temporal si se subió (pero no se usará)
-            if (req.files?.documento?.path) fs.unlinkSync(req.files.documento.path);
-            return res.status(200).send({ message: 'El número de factura ya está registrado' });
-        }
+  const registro_ingresos_admin = async function (req, res) {
+  if (!req.user) return res.status(500).send({ data: undefined, message: "ErrorToken" });
 
-        // 2. Generar serie (lógica original)
-        let reg_ingresos = await ingreso.find().sort({ createdAt: -1 });
-        data.serie = reg_ingresos.length == 0 ? 1 : reg_ingresos[0].serie + 1;
+  let data = req.body;
+  let add_ingreso = null;
 
-        // 3. Subir PDF a Cloudinary (solo si no existe duplicado)
-        if (req.files && req.files.documento) {
-                const nombreArchivo = data.ncomprobante.replace(/[^a-zA-Z0-9]/g, '-');
-                const result = await cloudinary.uploader.upload(req.files.documento.path, {
-                    folder: 'facturas',
-                    resource_type: 'raw',
-                    public_id: nombreArchivo,
-                    format: 'pdf'
-                });
-                
-                // Guarda ambos: nombre y URL pública
-                data.documento = result.secure_url;
-                 // ¡Nuevo campo para la URL!
-                
-                fs.unlinkSync(req.files.documento.path);
-            } else {
-                return res.status(200).send({ message: 'No se subió ningún documento PDF' }); 
-        }
-
-        // 4. Procesar registro y detalles (lógica original)
-        data.usuario = req.user.sub;
-        let detalles = JSON.parse(data.detalles);
-        let add_ingreso = await ingreso.create(data);
-
-        for (var item of detalles) {
-            item.ingreso = add_ingreso._id;
-            await ingreso_detalles.create(item);
-            await talla.findByIdAndUpdate(
-                item.variedad,
-                { $inc: { stock: parseInt(item.cantidad) } }
-            );
-            let product = await producto.findById({ _id: item.producto });
-            await producto.findByIdAndUpdate(
-                { _id: item.producto },
-                { 
-                    stock: parseInt(product.stock) + parseInt(item.cantidad),
-                    precio: parseInt(item.precio_unidad)
-                }
-            );
-        }
-
-        res.status(200).send(add_ingreso);
-
-    } catch (error) {
-        // Eliminar archivo temporal en caso de error
-        if (req.files?.documento?.path) fs.unlinkSync(req.files.documento.path);
-        res.status(200).send({ message: 'No se pudo registrar el ingreso', error: error.message });
+  try {
+    // 1. Validar si el ncomprobante ya existe
+    const comprobanteExistente = await ingreso.findOne({ ncomprobante: data.ncomprobante });
+    if (comprobanteExistente) {
+      if (req.files?.documento?.path) fs.unlinkSync(req.files.documento.path);
+      return res.status(200).send({ message: 'El número de factura ya está registrado' });
     }
-} else {
-    res.status(500).send({ data: undefined, message: "ErrorToken" });
-}
+
+    // 2. Generar serie
+    let reg_ingresos = await ingreso.find().sort({ createdAt: -1 });
+    data.serie = reg_ingresos.length == 0 ? 1 : reg_ingresos[0].serie + 1;
+
+    // 3. Subir PDF a Cloudinary
+    if (req.files?.documento?.path) {
+      const nombreArchivo = data.ncomprobante.replace(/[^a-zA-Z0-9]/g, '-');
+      const result = await cloudinary.uploader.upload(req.files.documento.path, {
+        folder: 'facturas',
+        resource_type: 'raw',
+        public_id: nombreArchivo,
+        format: 'pdf',
+      });
+
+      data.documento = result.secure_url;
+      fs.unlinkSync(req.files.documento.path);
+    } else {
+      return res.status(200).send({ message: 'No se subió ningún documento PDF' });
+    }
+
+    // 4. Registrar ingreso
+    data.usuario = req.user.sub;
+    let detalles = JSON.parse(data.detalles);
+    add_ingreso = await ingreso.create(data);
+
+    for (const item of detalles) {
+      item.ingreso = add_ingreso._id;
+      await ingreso_detalles.create(item);
+
+      await talla.findByIdAndUpdate(item.variedad, {
+        $inc: { stock: parseInt(item.cantidad) },
+      });
+
+      const product = await producto.findById(item.producto);
+      await producto.findByIdAndUpdate(item.producto, {
+        stock: parseInt(product.stock) + parseInt(item.cantidad),
+        precio: parseInt(item.precio_unidad),
+      });
+    }
+
+    return res.status(200).send(add_ingreso);
+
+  } catch (error) {
+    // 5. Eliminar archivo si quedó cargado
+    if (req.files?.documento?.path) {
+      try { fs.unlinkSync(req.files.documento.path); }
+      catch (err) { if (err.code !== 'ENOENT') console.error('Error eliminando archivo:', err); }
+    }
+
+    // 6. Eliminar ingreso creado si ya se guardó
+    if (add_ingreso?._id) {
+      try {
+        await ingreso.findByIdAndDelete(add_ingreso._id);
+        await ingreso_detalles.deleteMany({ ingreso: add_ingreso._id });
+        // Opcional: podrías revertir también el stock si quieres máxima integridad
+      } catch (rollbackErr) {
+        console.error('Error haciendo rollback del ingreso:', rollbackErr);
+      }
+    }
+
+    return res.status(200).send({
+      message: 'No se pudo registrar el ingreso',
+      error: error.message,
+    });
   }
+};
+
 const subir_imagen_producto_admin = async function(req, res) {
   if (!req.user) return res.status(401).send({ message: 'ErrorToken' });
 
