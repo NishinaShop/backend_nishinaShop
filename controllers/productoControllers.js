@@ -412,7 +412,16 @@ const obtener_detalles_ingreso_admin = async function(req,res){
   if (req.user){
     let id = req.params['id']
     let Ingreso = await ingreso.findById({_id:id})
-    let detalles = await ingreso_detalles.find({ingreso:id}).populate('producto').populate('variedad')
+    let detalles = await ingreso_detalles.find({ingreso:id}).populate('producto').populate('color')
+    let colors = await color.find({producto:id})
+      var variedades = []
+      for(var item of colors){
+        var tallas = await talla.find({color:item._id})
+        variedades.push({
+          colores: item,
+          tallas: tallas 
+        })
+      }
     let colaborador = await usuario.findById({_id:Ingreso.usuario})
     res.status(200).send({Ingreso,detalles,colaborador})
   }else{
