@@ -244,7 +244,7 @@ const eliminar_producto_admin = async function(req,res){
       });
 
       data.documento = result.secure_url;
-      fs.unlinkSync(req.files.documento.path);
+      
     } else {
       return res.status(200).send({ message: 'No se subió ningún documento PDF' });
     }
