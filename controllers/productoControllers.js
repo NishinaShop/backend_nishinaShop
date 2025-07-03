@@ -260,7 +260,7 @@ const eliminar_producto_admin = async function(req,res){
             item.ingreso = add_ingreso._id;
             await ingreso_detalles.create(item);
             await talla.findByIdAndUpdate(
-                item.variedad,
+                item.talla,
                 { $inc: { stock: parseInt(item.cantidad) } }
             );
             let product = await producto.findById({ _id: item.producto });
@@ -280,10 +280,10 @@ const eliminar_producto_admin = async function(req,res){
         if (req.files?.documento?.path) fs.unlinkSync(req.files.documento.path);
         res.status(200).send({ message: 'No se pudo registrar el ingreso', error: error.message });
     }
-} else {
-    res.status(500).send({ data: undefined, message: "ErrorToken" });
-}
+  } else {
+      res.status(500).send({ data: undefined, message: "ErrorToken" });
   }
+} 
 
 const subir_imagen_producto_admin = async function(req, res) {
   if (!req.user) return res.status(401).send({ message: 'ErrorToken' });
