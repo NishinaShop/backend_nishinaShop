@@ -291,6 +291,14 @@ const eliminar_producto_admin = async function(req,res){
             console.error("Error al eliminar el archivo temporal:", fsError);
         }
     }
+    if (add_ingreso?._id) {
+      try {
+        await ingreso.findByIdAndDelete(add_ingreso._id);
+        await ingreso_detalles.deleteMany({ ingreso: add_ingreso._id });
+      } catch (rollbackErr) {
+        console.error('Error haciendo rollback del ingreso:', rollbackErr);
+      }
+    }
 
     console.error("Error en registro_ingresos_admin:", error);
     res.status(200).send({ message: 'No se pudo registrar el ingreso', error: error.message });
@@ -428,16 +436,7 @@ const obtener_detalles_ingreso_admin = async function(req,res){
   if (req.user){
     let id = req.params['id']
     let Ingreso = await ingreso.findById({_id:id})
-    let detalles = await ingreso_detalles.find({ingreso:id}).populate('producto').populate('color')
-    let colors = await color.find({producto:id})
-      var variedades = []
-      for(var item of colors){
-        var tallas = await talla.find({color:item._id})
-        variedades.push({
-          colores: item,
-          tallas: tallas 
-        })
-      }
+    let detalles = await ingreso_detalles.find({ingreso:id}).populate('producto').populate('color').populate('')
     let colaborador = await usuario.findById({_id:Ingreso.usuario})
     res.status(200).send({Ingreso,detalles,colaborador})
   }else{
