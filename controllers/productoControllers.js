@@ -618,7 +618,8 @@ data.usuario = req.user.sub;
 
 // Intenta parsear los valores recibidos
 const cantidad = data.cantidad !== undefined ? Number(data.cantidad) : null;
-const precio = data.precio_unidad !== undefined ? Number(data.precio_unidad) : null;
+const precio = data.precio !== undefined ? Number(data.precio) : null;
+
 
 // Valida que si se envía, sea numérico
 if ((data.cantidad !== undefined && isNaN(cantidad)) || 
@@ -679,7 +680,8 @@ data.usuario = req.user.sub;
 
 // Convertir a número solo si vienen definidos
 const cantidad = data.cantidad !== undefined ? Number(data.cantidad) : null;
-const precio = data.precio_unidad !== undefined ? Number(data.precio_unidad) : null;
+const precio = data.precio !== undefined ? Number(data.precio) : null;
+
 
 // Validar que los valores enviados (si existen) sean numéricos
 if ((data.cantidad !== undefined && isNaN(cantidad)) || 
