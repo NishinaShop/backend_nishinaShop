@@ -600,6 +600,61 @@ const detalle_inventario = async function (req, res){
     res.status(500).send({data:undefined, message: 'Error de token' })
   }
 } 
+
+const salida_extraordinaria = async function (req, res){
+  if (req.user){
+    if(req.user.rol != 'Administrador'){
+      try {
+        let id = req.params['id']
+        let data = req.body
+        let product = await producto.findByIdAndUpdate({ _id: id },
+          { 
+            stock: parseInt(data.stock) - parseInt(data.cantidad),
+            precio: parseInt(data.precio_unidad)
+          },
+        { new: true })
+        await talla.findByIdAndUpdate(
+            data.talla,
+            { $inc: { stock: -parseInt(data.cantidad) } }
+          );
+      } catch (error) {
+        console.error(error);
+        res.status(200).send({ error: 'Error al actualizar producto ' });
+      }    
+    }else{
+      res.status(200).send({data:undefined, message: 'No tienes permiso para esta operacion' })
+    }
+  }else{
+    res.status(500).send({data:undefined, message: 'Error de token' })
+  }
+}
+const entrada_extraordinaria = async function (req, res){
+  if (req.user){
+    if(req.user.rol != 'Administrador'){
+      try {
+        let id = req.params['id']
+        let data = req.body
+        let product = await producto.findByIdAndUpdate({ _id: id },
+          { 
+            stock: parseInt(data.stock) + parseInt(data.cantidad),
+            precio: parseInt(data.precio)
+          },
+        { new: true })
+        await talla.findByIdAndUpdate(
+            data.talla,
+            { $inc: { stock: parseInt(data.cantidad) } }
+          );
+      } catch (error) {
+        console.error(error);
+        res.status(200).send({ error: 'Error al actualizar producto ' });
+      }  
+    }else{
+      res.status(200).send({data:undefined, message: 'No tienes permiso para esta operacion' })
+    }
+  }else{
+    res.status(500).send({data:undefined, message: 'Error de token' })
+  }
+}
 module.exports = {
     registro_producto_admin,
     listar_productos_admin,
@@ -627,5 +682,7 @@ module.exports = {
     obtener_colores,
     eliminar_color,
     eliminar_talla,
-    detalle_inventario
+    detalle_inventario,
+    salida_extraordinaria,
+    entrada_extraordinaria,
 }
