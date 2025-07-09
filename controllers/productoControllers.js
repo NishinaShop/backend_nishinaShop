@@ -610,22 +610,54 @@ const detalle_inventario = async function (req, res){
 
 const salida_extraordinaria = async function (req, res){
   if (req.user){
-    if(req.user.rol != 'Administrador'){
+    if(req.user.rol == 'Administrador'){
       try {
-        let id = req.params['id']
-        let data = req.body
-        data.usuario = req.user.sub
-        let salida = await extraordinario.create(data)
-        let product = await producto.findByIdAndUpdate({ _id: id },
-          { 
-            stock: parseInt(data.stock) - parseInt(data.cantidad),
-            precio: parseInt(data.precio_unidad)
-          },
-        { new: true })
-        await talla.findByIdAndUpdate(
-            data.talla,
-            { $inc: { stock: -parseInt(data.cantidad) } }
-          );
+        let id = req.params['id'];
+let data = req.body;
+data.usuario = req.user.sub;
+
+// Intenta parsear los valores recibidos
+const cantidad = data.cantidad !== undefined ? Number(data.cantidad) : null;
+const precio = data.precio_unidad !== undefined ? Number(data.precio_unidad) : null;
+
+// Valida que si se envía, sea numérico
+if ((data.cantidad !== undefined && isNaN(cantidad)) || 
+    (data.precio_unidad !== undefined && isNaN(precio))) {
+  return res.status(400).json({ message: 'Cantidad o precio no son válidos.' });
+}
+
+// Crea el registro de movimiento extraordinario
+const salida = await extraordinario.create(data);
+
+// Obtén el producto actual
+const productoActual = await producto.findById(id);
+if (!productoActual) {
+  return res.status(404).json({ message: 'Producto no encontrado.' });
+}
+
+// Calcula el nuevo stock
+const nuevoStock = cantidad !== null ? productoActual.stock - cantidad : productoActual.stock;
+
+// Prepara los campos a actualizar
+const updateFields = {};
+if (cantidad !== null) updateFields.stock = nuevoStock;
+if (precio !== null) updateFields.precio = precio;
+
+// Aplica la actualización solo si hay algo que cambiar
+if (Object.keys(updateFields).length > 0) {
+  await producto.findByIdAndUpdate(id, updateFields, { new: true });
+}
+
+// Si hay talla y cantidad, actualiza el stock de la talla
+if (data.talla && cantidad !== null) {
+  await talla.findByIdAndUpdate(
+    data.talla,
+    { $inc: { stock: -cantidad } }
+  );
+}
+
+return res.status(200).json({ message: 'Salida registrada correctamente.' });
+
       } catch (error) {
         console.error(error);
         res.status(200).send({ error: 'Error al actualizar producto ' });
@@ -641,20 +673,52 @@ const entrada_extraordinaria = async function (req, res){
   if (req.user){
     if(req.user.rol == 'Administrador'){
       try {
-        let id = req.params['id']
-        let data = req.body
-        data.usuario = req.user.sub
-        let ingreso = await extraordinario.create(data)
-        let product = await producto.findByIdAndUpdate({ _id: id },
-          { 
-            stock: parseInt(data.stock) + parseInt(data.cantidad),
-            precio: parseInt(data.precio)
-          },
-        { new: true })
-        await talla.findByIdAndUpdate(
-            data.talla,
-            { $inc: { stock: parseInt(data.cantidad) } }
-          );
+        let id = req.params['id'];
+let data = req.body;
+data.usuario = req.user.sub;
+
+// Convertir a número solo si vienen definidos
+const cantidad = data.cantidad !== undefined ? Number(data.cantidad) : null;
+const precio = data.precio_unidad !== undefined ? Number(data.precio_unidad) : null;
+
+// Validar que los valores enviados (si existen) sean numéricos
+if ((data.cantidad !== undefined && isNaN(cantidad)) || 
+    (data.precio_unidad !== undefined && isNaN(precio))) {
+  return res.status(400).json({ message: 'Cantidad o precio no son válidos.' });
+}
+
+// Registrar movimiento de entrada
+const entrada = await extraordinario.create(data);
+
+// Buscar el producto actual
+const productoActual = await producto.findById(id);
+if (!productoActual) {
+  return res.status(404).json({ message: 'Producto no encontrado.' });
+}
+
+// Calcular el nuevo stock (sumar la cantidad si viene)
+const nuevoStock = cantidad !== null ? productoActual.stock + cantidad : productoActual.stock;
+
+// Preparar campos a actualizar
+const updateFields = {};
+if (cantidad !== null) updateFields.stock = nuevoStock;
+if (precio !== null) updateFields.precio = precio;
+
+// Actualizar producto si hay datos a cambiar
+if (Object.keys(updateFields).length > 0) {
+  await producto.findByIdAndUpdate(id, updateFields, { new: true });
+}
+
+// Actualizar stock de talla si viene talla y cantidad
+if (data.talla && cantidad !== null) {
+  await talla.findByIdAndUpdate(
+    data.talla,
+    { $inc: { stock: cantidad } }
+  );
+}
+
+return res.status(200).json({ message: 'Entrada registrada correctamente.' });
+
       } catch (error) {
         console.error(error);
         res.status(200).send({ error: 'Error al actualizar producto ' });
