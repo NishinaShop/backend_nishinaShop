@@ -315,6 +315,64 @@ const eliminar_producto_admin = async function(req,res){
   }
 } 
 
+const eliminar_ingreso_admin = async function (req, res) {
+  if (!req.user) {
+    return res.status(401).send({ data: undefined, message: "ErrorToken" });
+  }
+
+  try {
+    const ingresoId = req.params.id;
+
+    // Buscar ingreso
+    const ingresoExistente = await ingreso.findById(ingresoId);
+    if (!ingresoExistente) {
+      return res.status(404).send({ message: 'Ingreso no encontrado' });
+    }
+
+    // Buscar detalles
+    const detalles = await ingreso_detalles.find({ ingreso: ingresoId });
+
+    // Revertir stock en producto y talla
+    for (const item of detalles) {
+      await talla.findByIdAndUpdate(
+        item.talla,
+        { $inc: { stock: -parseInt(item.cantidad) } }
+      );
+
+      const prod = await producto.findById(item.producto);
+      if (prod) {
+        await producto.findByIdAndUpdate(
+          item.producto,
+          { $inc: { stock: -parseInt(item.cantidad) } }
+        );
+      }
+    }
+
+    // Eliminar detalles
+    await ingreso_detalles.deleteMany({ ingreso: ingresoId });
+
+    // Eliminar archivo en Cloudinary si existe
+    if (ingresoExistente.documento) {
+      const publicId = `facturas/${ingresoExistente.ncomprobante.replace(/[^a-zA-Z0-9]/g, '-')}`;
+      try {
+        await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
+      } catch (cloudErr) {
+        console.warn("No se pudo eliminar el archivo en Cloudinary:", cloudErr.message);
+      }
+    }
+
+    // Eliminar ingreso principal
+    await ingreso.findByIdAndDelete(ingresoId);
+
+    res.status(200).send({ message: 'Ingreso eliminado correctamente' });
+
+  } catch (error) {
+    console.error("Error al eliminar ingreso:", error);
+    res.status(500).send({ message: 'Error al eliminar ingreso', error: error.message });
+  }
+}
+
+
 const subir_imagen_producto_admin = async function(req, res) {
   if (!req.user) return res.status(401).send({ message: 'ErrorToken' });
 
@@ -750,6 +808,7 @@ module.exports = {
     eliminar_variedades_producto,
     listar_productos_activos_admin,
     registro_ingresos_admin,
+    eliminar_ingreso_admin,
     subir_imagen_producto_admin,
     obtener_galeria_producto,
     obtener_galeria_producto_admin,
