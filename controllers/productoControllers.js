@@ -585,7 +585,7 @@ const eliminar_color =  async function (req,res){
 const detalle_inventario = async function (req, res){
   if (req.user){
     let id = req.params['id']
-    let producto = await producto.findById({_id: id})
+    let product = await producto.findById({_id: id})
     let colors = await color.find({producto:id})
       var variedades = []
       for(var item of colors){
@@ -595,7 +595,7 @@ const detalle_inventario = async function (req, res){
           tallas: tallas 
         })
       }
-      res.status(201).send({producto, variedades})
+      res.status(201).send({product, variedades})
   }else{
     res.status(500).send({data:undefined, message: 'Error de token' })
   }
