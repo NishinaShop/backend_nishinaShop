@@ -657,7 +657,7 @@ if (data.talla && cantidad !== null) {
   );
 }
 
-return res.status(200).json({ message: 'Salida registrada correctamente.' });
+
 
       } catch (error) {
         console.error(error);
@@ -719,8 +719,6 @@ if (data.talla && cantidad !== null) {
   );
 }
 
-return res.status(200).json({ message: 'Entrada registrada correctamente.' });
-
       } catch (error) {
         console.error(error);
         res.status(200).send({ error: 'Error al actualizar producto ' });
@@ -734,7 +732,7 @@ return res.status(200).json({ message: 'Entrada registrada correctamente.' });
 }
 const listado_extraordinario = async function (req, res){
   if (req.user){
-    let registros = await extraordinario.find().sort({createdAt:-1})
+    let registros = await extraordinario.find().sort({createdAt:-1}).populate('producto').populate('color').populate('talla')
     res.status(200).send(registros)
   }else{
     res.status(500).send({data:undefined, message: 'Error de token' })
