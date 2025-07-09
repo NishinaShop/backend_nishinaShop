@@ -42,7 +42,7 @@ api.delete('/eliminar_color/:id', authenticate.decodeToken, productoController.e
 api.delete('/eliminar_talla/:id', authenticate.decodeToken, productoController.eliminar_talla);
 /// Extraordinario
 api.post('/salida_extraordinaria/:id', authenticate.decodeToken, productoController.salida_extraordinaria)
-api.post('/entrada_extraordinaria/:id', authenticate.decodeToken, productoController.salida_extraordinaria)
+api.post('/entrada_extraordinaria/:id', authenticate.decodeToken, productoController.entrada_extraordinaria)
 api.get ('/listado_registros_extraordinarios', authenticate.decodeToken, productoController.listado_extraordinario)
 
 module.exports = api;
