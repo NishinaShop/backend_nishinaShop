@@ -1,18 +1,19 @@
 const mongoose = require ('mongoose');
 var schema = mongoose.Schema;
 var producto_schema = schema({
-    slug: {type: String, requiered: true},
-    portada:{type: String, requiered: true},
-    nombre : {type: String, requiered: true},
-    clave : {type: String, requiered: true, unique: true},
-    genero : {type: String, requiered: true},
-    categoria : {type: String, requiered: true},
-    precio : {type: Number, default: 0, requiered: false},
-    descripcion : {type: String, requiered: true},
-    stock: {type: Number, default: 0,requiered: true},
-    stock_fisico: {type: Number, default: 0,requiered: true},
-    estado : {type: Boolean, requiered: true},
-    descuento : {type: Boolean, requiered: true},
+    slug: {type: String, required: true},
+    portada:{type: String, required: true},
+    nombre : {type: String, required: true},
+    clave : {type: String, required: true, unique: true},
+    genero : {type: String, required: true},
+    categoria : {type: String, required: true},
+    precio : {type: Number, default: 0, required: false},
+    descripcion : {type: String, required: true},
+    stock: {type: Number, default: 0,required: true},
+    stock_fisico: {type: Number, default: 0,required: true},
+    estado : {type: Boolean, required: true},
+    descuento : {type: Boolean, required: true},
+    desc_porcentaje : {type: Number, required: false},
     updatedAt : {type: Date, requiered: false},
     createdAt : {type: Date, default: Date.now}
 }); 

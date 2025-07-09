@@ -7,6 +7,7 @@ var usuario = require ('../models/usuario')
 var categoria = require ('../models/categorias')
 var color = require ('../models/colores')
 var talla = require ('../models/tallas')
+var extraordinario = require ('../models/extraordinario')
 var slugify = require ('slugify')
 const cloudinary = require('../config/cloudinary');
 var fs = require ('fs');
@@ -613,6 +614,8 @@ const salida_extraordinaria = async function (req, res){
       try {
         let id = req.params['id']
         let data = req.body
+        data.usuario = req.user.sub
+        let salida = await extraordinario.create(data)
         let product = await producto.findByIdAndUpdate({ _id: id },
           { 
             stock: parseInt(data.stock) - parseInt(data.cantidad),
@@ -640,6 +643,8 @@ const entrada_extraordinaria = async function (req, res){
       try {
         let id = req.params['id']
         let data = req.body
+        data.usuario = req.user.sub
+        let ingreso = await extraordinario.create(data)
         let product = await producto.findByIdAndUpdate({ _id: id },
           { 
             stock: parseInt(data.stock) + parseInt(data.cantidad),
@@ -657,6 +662,14 @@ const entrada_extraordinaria = async function (req, res){
     }else{
       res.status(200).send({data:undefined, message: 'No tienes permiso para esta operacion' })
     }
+  }else{
+    res.status(500).send({data:undefined, message: 'Error de token' })
+  }
+}
+const listado_extraordinario = async function (req, res){
+  if (req.user){
+    let registros = await extraordinario.find().sort({createdAt:-1})
+    res.status(200).send(registros)
   }else{
     res.status(500).send({data:undefined, message: 'Error de token' })
   }
@@ -691,4 +704,5 @@ module.exports = {
     detalle_inventario,
     salida_extraordinaria,
     entrada_extraordinaria,
+    listado_extraordinario,
 }

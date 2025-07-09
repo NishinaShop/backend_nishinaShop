@@ -2,6 +2,7 @@ const mongoose = require ('mongoose');
 var schema = mongoose.Schema;
 var extraordinario_schema = schema({
     movimiento: {type: String, required: true},
+    registro: {type: String, required: true},
     cantidad: {type: Number, required: true},
     precio: {type: Number, required: true},
     producto: {type: schema.ObjectId, ref: 'producto', required: true},
