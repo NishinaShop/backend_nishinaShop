@@ -582,6 +582,24 @@ const eliminar_color =  async function (req,res){
     res.status(500).send({data: undefined, message: 'Error de token'})
   }
 }
+const detalle_inventario = async function (req, res){
+  if (req.user){
+    let id = req.params['id']
+    let producto = await producto.findById({_id: id})
+    let colors = await color.find({producto:id})
+      var variedades = []
+      for(var item of colors){
+        var tallas = await talla.find({color:item._id})
+        variedades.push({
+          colores: item,
+          tallas: tallas 
+        })
+      }
+      res.status(201).send({producto, variedades})
+  }else{
+    res.status(500).send({data:undefined, message: 'Error de token' })
+  }
+} 
 module.exports = {
     registro_producto_admin,
     listar_productos_admin,
@@ -609,4 +627,5 @@ module.exports = {
     obtener_colores,
     eliminar_color,
     eliminar_talla,
+    detalle_inventario
 }
