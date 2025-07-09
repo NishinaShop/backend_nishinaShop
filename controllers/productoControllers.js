@@ -639,7 +639,7 @@ const salida_extraordinaria = async function (req, res){
 }
 const entrada_extraordinaria = async function (req, res){
   if (req.user){
-    if(req.user.rol != 'Administrador'){
+    if(req.user.rol == 'Administrador'){
       try {
         let id = req.params['id']
         let data = req.body
