@@ -110,7 +110,13 @@ const actualizar_producto_admin = async function(req, res) {
     }else{
       const id = req.params.id;
     let data = req.body;
-
+      if (data.precio !== undefined) {
+  const precio = parseFloat(data.precio);
+  if (isNaN(precio)) {
+    return res.status(400).json({ message: 'El precio debe ser un número válido.' });
+  }
+  data.precio = precio;
+}
     const productoExistente = await producto.findById(id);
     if (!productoExistente) return res.status(404).send({ message: 'Producto no encontrado' });
 
