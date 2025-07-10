@@ -776,7 +776,7 @@ if (data.talla && cantidad !== null) {
     { $inc: { stock: cantidad } }
   );
 }
-
+res.status(200).send({message:'guardado'})
       } catch (error) {
         console.error(error);
         res.status(200).send({ error: 'Error al actualizar producto ' });
