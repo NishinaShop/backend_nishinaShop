@@ -8,16 +8,18 @@ var detalles_ventas = require ('../models/detalles_venta')
 var color = require ('../models/colores')
 var talla = require ('../models/tallas')
 const axios = require('axios');
+const tallas = require('../models/tallas')
 require('dotenv').config(); 
 
 
 const agregar_al_carrito = async function(req,res){
     if(req.user){
         let data = req.body
-        let tallas = await talla.findById({_id:data.talla}).populate('color')
+        let tallas = await tallas.findById({_id: data.talla}).populate('color')
+        let colors = await color.findById({_id: data.color}).populate('producto')
 
         if(data.cantidad <= tallas.stock){
-            if(tallas.producto.precio){
+            if(colors.producto.precio){
                 let cart = await carrito.create(data)
                 res.status(200).send(cart)
             }else{
