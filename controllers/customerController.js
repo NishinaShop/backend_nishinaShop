@@ -15,7 +15,7 @@ require('dotenv').config();
 const agregar_al_carrito = async function(req,res){
     if(req.user){
         let data = req.body
-        let tallas = await tallas.findById({_id: data.talla}).populate('color')
+        let tallas = await talla.findById({_id: data.talla}).populate('color')
         let colors = await color.findById({_id: data.color}).populate('producto')
 
         if(data.cantidad <= tallas.stock){
