@@ -1,7 +1,8 @@
 const mongoose = require ('mongoose');
 var schema = mongoose.Schema;
 var carrito_schema = schema({
-    variedad: {type: schema.ObjectId, ref: 'variedad', required: true},
+    talla: {type: schema.ObjectId, ref: 'talla', required: true},
+    color: {type: schema.ObjectId, ref: 'color', required: true},
     cantidad: {type: Number, requiered: true},
     producto: {type: schema.ObjectId, ref: 'producto', required: true},
     cliente: {type: schema.ObjectId, ref: 'cliente', required: true},

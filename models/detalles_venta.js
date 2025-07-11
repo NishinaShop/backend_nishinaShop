@@ -10,7 +10,8 @@ var detalles_venta_schema = schema({
     venta: {type: schema.ObjectId, ref: 'venta', required: true}, 
     cliente: {type: schema.ObjectId, ref: 'cliente', required: true}, 
     producto: {type: schema.ObjectId, ref: 'producto', required: true},
-    variedad: {type: schema.ObjectId, ref: 'variedad', required: true}, 
+    color: {type: schema.ObjectId, ref: 'color', required: true}, 
+    talla: {type: schema.ObjectId, ref: 'talla', required: true}, 
     createdAt : {type: Date, default: Date.now}
 }); 
 module.exports = mongoose.model('detalles_venta',detalles_venta_schema)

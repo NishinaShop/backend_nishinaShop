@@ -5,6 +5,8 @@ var clientes = require ('../models/cliente')
 var producto = require('../models/producto')
 var ventas= require ('../models/venta')
 var detalles_ventas = require ('../models/detalles_venta')
+var color = require ('../models/colores')
+var talla = require ('../models/tallas')
 const axios = require('axios');
 require('dotenv').config(); 
 
@@ -12,10 +14,10 @@ require('dotenv').config();
 const agregar_al_carrito = async function(req,res){
     if(req.user){
         let data = req.body
-        let variety = await variedad.findById({_id:data.variedad}).populate('producto')
+        let tallas = await talla.findById({_id:data.talla}).populate('color')
 
-        if(data.cantidad <= variety.stock){
-            if(variety.producto.precio){
+        if(data.cantidad <= tallas.stock){
+            if(tallas.producto.precio){
                 let cart = await carrito.create(data)
                 res.status(200).send(cart)
             }else{
@@ -31,8 +33,8 @@ const agregar_al_carrito = async function(req,res){
 }
 const obtener_carrito = async function(req,res){
     if(req.user){
-        let cart = await carrito.find({cliente: req.user.sub}).populate('producto').populate('variedad').sort({createdAt:-1}).limit(4)
-        let cart_general = await carrito.find({cliente: req.user.sub}).populate('producto').populate('variedad').sort({createdAt:-1})
+        let cart = await carrito.find({cliente: req.user.sub}).populate('producto').populate('color').populate('talla').sort({createdAt:-1}).limit(4)
+        let cart_general = await carrito.find({cliente: req.user.sub}).populate('producto').populate('color').populate('talla').sort({createdAt:-1})
         res.status(200).send({cart,cart_general})
     }else{
         res.status(500).send({data: undefined, message: 'Error al validar el token'})
@@ -154,7 +156,7 @@ const crear_venta_cliente = async function(req,res){
 
             await detalles_ventas.create(item);
             await producto.findByIdAndUpdate(item.producto, { $inc: { stock: -item.cantidad } });
-            await variedad.findByIdAndUpdate(item.variedad, { $inc: { stock: -item.cantidad } });
+            await talla.findByIdAndUpdate(item.talla, { $inc: { stock: -item.cantidad } });
         }
 
         // 6. Limpiar carrito
@@ -175,7 +177,7 @@ const obtener_venta= async function(req,res){
     if(req.user){
         let id = req.params['id']
         let venta = await ventas.findById({_id:id}).populate('cliente').populate('direccion')
-        let detalles = await detalles_ventas.find({venta:id}).populate('producto').populate('variedad')
+        let detalles = await detalles_ventas.find({venta:id}).populate('producto').populate('color').populate('talla')
         if(req.user.sub == venta.cliente._id){
             res.status(200).send({venta,detalles})
         }else{
