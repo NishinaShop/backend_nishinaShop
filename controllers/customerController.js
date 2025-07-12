@@ -136,13 +136,13 @@ const crear_venta_cliente = async function(req,res){
         // 3. Validar stock
         for (const item of data.detalles) {
             const productoDB = await producto.findById(item.producto);
-            const variedadDB = await variedad.findById(item.variedad);
+            const variedadDB = await talla.findById(item.talla);
 
             if (!productoDB || productoDB.stock < item.cantidad) {
                 throw new Error(`Stock insuficiente para el producto ${item.producto}`);
             }
             if (!variedadDB || variedadDB.stock < item.cantidad) {
-                throw new Error(`Stock insuficiente para la variedad ${item.variedad}`);
+                throw new Error(`Stock insuficiente para la variedad ${item.talla}`);
             }
         }
 
@@ -220,13 +220,13 @@ const crear_venta_spei_cliente = async function(req, res) {
         // 3. Validar stock
         for (const item of data.detalles) {
             const productoDB = await producto.findById(item.producto);
-            const variedadDB = await variedad.findById(item.variedad);
+            const variedadDB = await talla.findById(item.talla);
 
             if (!productoDB || productoDB.stock < item.cantidad) {
                 throw new Error(`Stock insuficiente para el producto ${item.producto}`);
             }
             if (!variedadDB || variedadDB.stock < item.cantidad) {
-                throw new Error(`Stock insuficiente para la variedad ${item.variedad}`);
+                throw new Error(`Stock insuficiente para la variedad ${item.talla}`);
             }
         }
 
@@ -242,7 +242,7 @@ const crear_venta_spei_cliente = async function(req, res) {
 
             await detalles_ventas.create(item);
             await producto.findByIdAndUpdate(item.producto, { $inc: { stock: -item.cantidad } });
-            await variedad.findByIdAndUpdate(item.variedad, { $inc: { stock: -item.cantidad } });
+            await talla.findByIdAndUpdate(item.talla, { $inc: { stock: -item.cantidad } });
         }
 
         // 6. Limpiar carrito
