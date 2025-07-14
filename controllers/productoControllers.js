@@ -716,7 +716,7 @@ if (data.talla && cantidad !== null) {
 }
 
 
-res.status(200).send({message:'guardado'})
+res.status(200).send({data: undefined})
       } catch (error) {
         console.error(error);
         res.status(200).send({ error: 'Error al actualizar producto ' });
@@ -776,7 +776,7 @@ if (data.talla && cantidad !== null) {
     { $inc: { stock: cantidad } }
   );
 }
-res.status(200).send({message:'guardado'})
+res.status(200).send({data: undefined})
       } catch (error) {
         console.error(error);
         res.status(200).send({ error: 'Error al actualizar producto ' });
