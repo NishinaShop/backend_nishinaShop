@@ -6,6 +6,7 @@ var detalles_venta_schema = schema({
     day: {type: Number, required: true},
     subtotal: {type: Number, required: true},
     precio_unidad: {type: Number, required: true},
+    precio_factura: {type: Number, required: true},
     cantidad: {type: Number, required: true},
     venta: {type: schema.ObjectId, ref: 'venta', required: true}, 
     cliente: {type: schema.ObjectId, ref: 'cliente', required: true}, 
