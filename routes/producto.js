@@ -36,14 +36,15 @@ api.post('/agregar_categoria', authenticate.decodeToken, productoController.agre
 api.get('/listar_categorias', authenticate.decodeToken, productoController.listar_categorias)
 api.put('/cambiar_estado_categoria/:id', authenticate.decodeToken, productoController.cambiar_estado_categoria)
 /// VariedadesNuevo
-api.post('/agregar_color', authenticate.decodeToken, productoController.agregar_color)
-api.get('/obtener_colores/:id', authenticate.decodeToken, productoController.obtener_colores)
-api.post('/agregar_talla', authenticate.decodeToken, productoController.agregar_talla)
+api.post('/agregar_color', authenticate.decodeToken, productoController.agregar_color);
+api.get('/obtener_colores/:id', authenticate.decodeToken, productoController.obtener_colores);
+api.post('/agregar_talla', authenticate.decodeToken, productoController.agregar_talla);
 api.delete('/eliminar_color/:id', authenticate.decodeToken, productoController.eliminar_color);
 api.delete('/eliminar_talla/:id', authenticate.decodeToken, productoController.eliminar_talla);
 /// Extraordinario
-api.post('/salida_extraordinaria/:id', authenticate.decodeToken, productoController.salida_extraordinaria)
-api.post('/entrada_extraordinaria/:id', authenticate.decodeToken, productoController.entrada_extraordinaria)
-api.get ('/listado_registros_extraordinarios', authenticate.decodeToken, productoController.listado_extraordinario)
-
+api.post('/salida_extraordinaria/:id', authenticate.decodeToken, productoController.salida_extraordinaria);
+api.post('/entrada_extraordinaria/:id', authenticate.decodeToken, productoController.entrada_extraordinaria);
+api.get ('/listado_registros_extraordinarios', authenticate.decodeToken, productoController.listado_extraordinario);
+// Datos Dashboard
+api.get('/obtener_datos_dashboard', authenticate.decodeToken, productoController.obtener_datos_productos);
 module.exports = api;

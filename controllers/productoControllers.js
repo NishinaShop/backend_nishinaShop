@@ -8,6 +8,8 @@ var categoria = require ('../models/categorias')
 var color = require ('../models/colores')
 var talla = require ('../models/tallas')
 var extraordinario = require ('../models/extraordinario')
+var venta = require ('../models/venta')
+var cliente = require ('../models/cliente')
 var slugify = require ('slugify')
 const cloudinary = require('../config/cloudinary');
 var fs = require ('fs');
@@ -796,6 +798,63 @@ const listado_extraordinario = async function (req, res){
     res.status(500).send({data:undefined, message: 'Error de token' })
   }
 }
+const obtener_datos_productos = async function(req, res){
+  if(req.user){
+    let productos = await producto.countDocuments()
+    let ventasTotales = await venta.countDocuments()
+    let ingresosTotales = await ingreso.countDocuments()
+    let clientes = await cliente.countDocuments()
+    const inicioMes = new Date();
+      inicioMes.setDate(1);
+      inicioMes.setHours(0, 0, 0, 0);
+      const finMes = new Date(inicioMes);
+      finMes.setMonth(finMes.getMonth() + 1);
+      let ingresos_agg = await ingreso.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: inicioMes,
+              $lt: finMes
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$monto_total" }
+          }
+        }
+      ]);
+      let ingresosDelmes = ingresos_agg.length > 0 ? ingresos_agg[0].total : 0;
+      const ventas_agg = await venta.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: inicioMes,
+              $lt: finMes
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$total" }
+          }
+        }
+      ]);
+      const ventasDelMes = ventas_agg.length > 0 ? ventas_agg[0].total : 0;
+    res.status(200).send({
+      productos,
+      ventasTotales,
+      ingresosTotales,
+      clientes,
+      ingresosDelmes,
+      ventasDelMes
+    })
+  }else{
+    res.status(500).send({data:undefined, message: 'token no valido'})
+  }
+}
 module.exports = {
     registro_producto_admin,
     listar_productos_admin,
@@ -828,4 +887,5 @@ module.exports = {
     salida_extraordinaria,
     entrada_extraordinaria,
     listado_extraordinario,
+    obtener_datos_productos,
 }
