@@ -821,7 +821,9 @@ const obtener_datos_productos = async function(req, res){
         {
           $group: {
             _id: null,
-            total: { $sum: "$monto_total" }
+            total: {
+            $sum: { $toDouble: "$monto_total" }
+            }
           }
         }
       ]);
